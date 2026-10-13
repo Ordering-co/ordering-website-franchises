@@ -1,0 +1,2 @@
+pnpm lint
+node i18n/precommit-generate.cjs

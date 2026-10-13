@@ -1,0 +1,100 @@
+key,value,app_uses,submodule_uses
+"ERROR","Error",31,10
+"ERROR","ERROR",3,0
+"RECAPTCHA_VALIDATION_IS_REQUIRED","The captcha validation is required",0,2
+"RECAPTCHA_VALIDATION_IS_REQUIRED","The ReCaptcha validation is required.",0,3
+"NETWORK_ERROR","Network Error",0,2
+"NETWORK_ERROR","Network error",0,1
+"NETWORK_ERROR","Network error, please reload the page",1,0
+"LOADING","Loading",23,13
+"LOADING","Loading...",10,0
+"OK","Ok",2,2
+"OK","OK",1,0
+"STRIPE_LOAD_ERROR","Failed to load Stripe properly",0,1
+"STRIPE_LOAD_ERROR","Faile to load Stripe properly",0,1
+"REJECTED_BY_DRIVER","Rejected by driver",1,1
+"REJECTED_BY_DRIVER","Rejected by Driver",1,0
+"PREORDER","Preorder",5,1
+"PREORDER","PreOrder",2,0
+"ORDER_PICKEDUP_COMPLETED_BY_CUSTOMER","Pickup completed by customer",1,1
+"ORDER_PICKEDUP_COMPLETED_BY_CUSTOMER","Order picked up completed by customer",3,0
+"ORDER_STATUS_CANCELLED_BY_CUSTOMER","Cancelled by customer",1,1
+"ORDER_STATUS_CANCELLED_BY_CUSTOMER","Order cancelled by customer",3,0
+"ORDER_NOT_PICKEDUP_BY_CUSTOMER","Not picked by customer",1,1
+"ORDER_NOT_PICKEDUP_BY_CUSTOMER","Order not picked up by customer",3,0
+"LOGIN","Login",30,0
+"LOGIN","Log in",1,0
+"MY_ORDERS","My Orders",1,0
+"MY_ORDERS","My orders",2,0
+"HELP","help",2,0
+"HELP","Help",3,0
+"RESET_PASSWORD","Reset password",9,0
+"RESET_PASSWORD","Reset Password",2,0
+"CHANGE_ADDRESS","Change address",1,0
+"CHANGE_ADDRESS","Select other Address",2,0
+"ADD_NEW_ADDRESS","Add new address",1,0
+"ADD_NEW_ADDRESS","Add New Address",2,0
+"ORDER_DETAILS","ORDER DETAILS",1,0
+"ORDER_DETAILS","Order Details",1,0
+"ORDER_DETAILS","Order details",1,0
+"ADDRESSES","Addresses",1,0
+"ADDRESSES","Address List",1,0
+"CONTINUE","CONTINUE",1,0
+"CONTINUE","Continue",12,0
+"DELIVERY_FEE","Delivery fee",5,0
+"DELIVERY_FEE","Delivery Fee",7,0
+"ORDER_NOW","Order Now",3,0
+"ORDER_NOW","Order now",1,0
+"DELIVERY_TIME","Delivery Time",2,0
+"DELIVERY_TIME","Delivery time",1,0
+"DELIVERY_TIME","delivery time",2,0
+"PICKUP_TIME","Pickup Time",2,0
+"PICKUP_TIME","Pickup time",1,0
+"PICKUP_TIME","pickup Time",1,0
+"CANCELLATION_OWNER_TEXT","If you are the :owner of this website contact us to reactivate your website.",1,0
+"CANCELLATION_OWNER_TEXT","If you are a :customer let the owner know you midd this website, just write your email below.",1,0
+"ADD_MORE_PRODUCTS","Add products",1,0
+"ADD_MORE_PRODUCTS","Add more products",1,0
+"COMMENTS","Comments",4,0
+"COMMENTS","COMMENTS",1,0
+"PRODUCT","Product",4,0
+"PRODUCT","products",1,0
+"CLOSE","Close",3,0
+"CLOSE","close",1,0
+"CUSTOMER_DETAILS","Customer details",3,0
+"CUSTOMER_DETAILS","Customer Details",1,0
+"TRY_AGAIN","Try again",1,0
+"TRY_AGAIN","Please try again",4,0
+"ORDERS","Orders",4,0
+"ORDERS","orders",2,0
+"EMAIL","Email",15,0
+"EMAIL","EMail",1,0
+"GIFT_CARD","Gift card",3,0
+"GIFT_CARD","Gift Card",1,0
+"VALIDATION_ERROR_REQUIRED","Code is required",1,0
+"VALIDATION_ERROR_REQUIRED","Password is required",1,0
+"VALIDATION_ERROR_REQUIRED","To email is required",1,0
+"VALIDATION_ERROR_REQUIRED","Project is required",1,0
+"PASSWORD","Password",15,0
+"PASSWORD","password",3,0
+"TO","To",1,0
+"TO","to",2,0
+"INVALID_ERROR_PHONE_NUMBER","The Phone Number field is invalid",5,0
+"INVALID_ERROR_PHONE_NUMBER","The Phone Number field is invalid.",1,0
+"VALIDATION_ERROR_MOBILE_PHONE_REQUIRED","The field Mobile phone is required",2,0
+"VALIDATION_ERROR_MOBILE_PHONE_REQUIRED","The field Mobile phone is required.",3,0
+"VALIDATION_ERROR_MOBILE_PHONE_REQUIRED","The field Phone Number is required.",1,0
+"BY_OTP_EMAIL","By Otp Email",1,0
+"BY_OTP_EMAIL","by Otp Email",1,0
+"BY_OTP_CELLPHONE","By Otp Cellphone",1,0
+"BY_OTP_CELLPHONE","by Otp Cellphone",1,0
+"VALIDATION_ERROR_PASSWORD_REQUIRED","The field Password is required",6,0
+"VALIDATION_ERROR_PASSWORD_REQUIRED","The field password is required",1,0
+"PAYMENT_METHODS","Payment Methods",1,0
+"PAYMENT_METHODS","Payment methods",1,0
+"INGREDIENTS","ingredients",1,0
+"INGREDIENTS","Ingredients",3,0
+"TERMS_AND_CONDITIONS_TEXT","I’m agree with",2,0
+"TERMS_AND_CONDITIONS_TEXT","I agree with Terms and Conditions",1,0
+"UPDATE_PROFILE","Update profile",1,0
+"UPDATE_PROFILE","Update Profile",1,0

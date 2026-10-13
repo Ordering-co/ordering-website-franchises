@@ -1,0 +1,269 @@
+import React, { useState, useEffect, useRef } from 'react'
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
+import IosRadioButtonOn from '@meronex/icons/ios/IosRadioButtonOn'
+import IosRadioButtonOff from '@meronex/icons/ios/IosRadioButtonOff'
+import { Trash } from 'react-bootstrap-icons'
+import { useTheme } from 'styled-components'
+
+import {
+  OptionStripeContainer,
+  WarningMessage,
+  CardItem,
+  CardItemContent,
+  CardItemActions,
+  BlockLoading,
+  AddNewCard,
+  CardItemActionsWrapper
+} from './styles'
+
+import {
+  PaymentOptionStripe as PaymentOptionStripeController,
+  useSession,
+  useLanguage,
+  useValidationFields
+} from '~components'
+
+import {
+  Modal,
+  Confirm,
+  StripeElementsForm,
+  generalUtilities,
+  NotFoundSource
+} from '~ui'
+
+export const PaymentOptionStripeUI = (props) => {
+  const {
+    deleteCard,
+    cardsList,
+    handleCardClick,
+    handleNewCard,
+    paymethodSelected,
+    cardSelected,
+    gateway,
+    deleteUserCard,
+    paymethodV2Featured,
+    deleteBusinessUserPaymethod
+  } = props
+  const [{ token }] = useSession()
+  const [, t] = useLanguage()
+  const [validationFields] = useValidationFields()
+  const [confirm, setConfirm] = useState({ open: false, content: null, handleOnAccept: null })
+
+  const [addCartOpen, setAddCardOpen] = useState(false)
+  const validateZipcodeCard =
+    validationFields?.fields?.card?.zipcode?.enabled && validationFields?.fields?.card?.zipcode?.required
+
+  const paymethodsWithoutStripeForm = ['credomatic', 'izipay', 'globalpay', 'hitpay', 'cybersource']
+
+  const _handleNewCard = (card) => {
+    setAddCardOpen(false)
+    handleNewCard(card)
+  }
+
+  const handleDeleteCard = (card) => {
+    setConfirm({
+      open: true,
+      content: t('QUESTION_DELETE_CARD', 'Are you sure that you want to delete the card?'),
+      handleOnAccept: () => {
+        paymethodV2Featured
+          ? ['izipay'].includes(gateway)
+              ? deleteUserCard(card)
+              : deleteBusinessUserPaymethod(card)
+          : deleteCard(card)
+        setConfirm({ ...confirm, open: false })
+      }
+    })
+  }
+
+  useEffect(() => {
+    if (!cardsList?.loading && cardsList?.cards?.length === 0 && !paymethodsWithoutStripeForm.includes(gateway)) {
+      setAddCardOpen(true)
+    }
+  }, [cardsList?.loading])
+
+  return (
+    <OptionStripeContainer>
+      {!token && <WarningMessage>{t('NEED_LOGIN_TO_USE', 'Sorry, you need to login to use this method')}</WarningMessage>}
+
+      {token && !cardsList.loading && cardsList.cards && cardsList.cards.length === 0 && (
+        <CardItem>
+          <span>{t('NO_CARDS', 'No cards')}</span>
+        </CardItem>
+      )}
+
+      {token && cardsList.error && cardsList.error.length > 0 && (
+        <NotFoundSource
+          content={cardsList?.error[0]?.message || cardsList?.error[0]}
+        />
+      )}
+      {token && cardsList.cards && cardsList.cards.length > 0 && !cardsList.loading && (
+        <>
+          {cardsList?.cards?.map((card, i) =>
+            <PaymentCard
+              {...props}
+              key={i}
+              handleCardClick={() => handleCardClick(card)}
+              handleDeleteCard={() => handleDeleteCard(card)}
+              card={card}
+              defaultSelected={i === 0}
+              active={(paymethodSelected || cardSelected?.id) === card.id}
+              cardSelected={cardSelected}
+              paymethodSelected={paymethodSelected}
+              validateZipcodeCard={validateZipcodeCard}
+            />
+          )}
+        </>
+      )}
+      {token && !cardsList.loading && !paymethodsWithoutStripeForm.includes(gateway) && (
+        <AddNewCard>
+          <span onClick={() => setAddCardOpen(true)}>{t('ADD_NEW_CARD', 'Add new card')}</span>
+        </AddNewCard>
+      )}
+      {addCartOpen && (
+        <Modal
+          title={t('ADD_NEW_CARD', 'Add new card')}
+          className='modal-info'
+          open={addCartOpen}
+          onClose={() => setAddCardOpen(false)}
+          width='600px'
+          padding='20px 50px 30px'
+          closeIconRight
+        >
+          <StripeElementsForm
+            businessIds={props.businessIds}
+            businessId={props.businessId}
+            publicKey={props.publicKey}
+            toSave
+            requirements={props.clientSecret}
+            onCancel={() => setAddCardOpen(false)}
+            onNewCard={_handleNewCard}
+          />
+        </Modal>
+      )}
+
+      <Confirm
+        title={t('CARD', 'Card')}
+        content={confirm.content}
+        acceptText={t('ACCEPT', 'Accept')}
+        open={confirm.open}
+        onClose={() => setConfirm({ ...confirm, open: false })}
+        onCancel={() => setConfirm({ ...confirm, open: false })}
+        onAccept={confirm.handleOnAccept}
+        closeOnBackdrop={false}
+      />
+
+      {token && cardsList.loading && (
+        [...Array(5).keys()].map(i => (
+          <BlockLoading key={i}>
+            <Skeleton height={50} />
+          </BlockLoading>
+        ))
+      )}
+    </OptionStripeContainer>
+  )
+}
+
+export const PaymentCard = (props) => {
+  const {
+    handleDeleteCard,
+    card,
+    handleCardClick,
+    onSelectCard,
+    active,
+    cardSelected,
+    validateZipcodeCard,
+    paymethodV2Featured
+  } = props
+
+  const [isShowActions, setIsShowActions] = useState(false)
+  const [, t] = useLanguage()
+  const cardActionsRef = useRef(null)
+  const actionWrapperRef = useRef(null)
+  const theme = useTheme()
+  const { getIconCard } = generalUtilities()
+
+  const handleClickOutside = (e) => {
+    if (!isShowActions) return
+    const outsideCalendar = !cardActionsRef.current?.contains(e.target)
+    if (outsideCalendar) {
+      setIsShowActions(false)
+    }
+  }
+
+  const handleChangeDefaultCard = (e) => {
+    if (actionWrapperRef.current?.contains(e.target) || (!card?.zipcode && validateZipcodeCard) || !card?.last4) return
+    handleCardClick(card)
+    onSelectCard && onSelectCard({
+      ...cardSelected,
+      id: card.id,
+      type: 'card',
+      card_token: card.card_token,
+      card: {
+        brand: card.brand,
+        last4: card.last4,
+        zipcode: card.zipcode
+      }
+    })
+  }
+
+  useEffect(() => {
+    if (!cardSelected || paymethodV2Featured?.includes?.('get_cards')) return
+    onSelectCard && onSelectCard({
+      ...cardSelected,
+      id: cardSelected?.id,
+      type: 'card',
+      card_token: card.card_token,
+      card: {
+        brand: cardSelected?.card?.brand,
+        last4: cardSelected?.card?.last4,
+        zipcode: cardSelected?.card?.zipcode
+      }
+    })
+  }, [cardSelected])
+
+  useEffect(() => {
+    window.addEventListener('click', handleClickOutside)
+    return () => window.removeEventListener('click', handleClickOutside)
+  }, [isShowActions])
+
+  return (
+    <CardItem onClick={handleChangeDefaultCard} isCursor invalid={!card?.zipcode && validateZipcodeCard}>
+      <CardItemContent>
+        <span className='checks'>
+          {active ? <IosRadioButtonOn /> : <IosRadioButtonOff />}
+        </span>
+        <div>
+          <img src={getIconCard(card?.brand)} alt={card?.brand} />
+        </div>
+        <span>
+          XXXX-XXXX-XXXX-{card?.last4 || '****'}
+        </span>
+        {!card?.zipcode && validateZipcodeCard && (
+          <p>
+            ({t('MISSING_ZIPCODE', 'Missing zipcode')})
+          </p>
+        )}
+      </CardItemContent>
+      {(paymethodV2Featured?.includes('delete_cards') || !paymethodV2Featured) && (
+        <CardItemActions>
+          <CardItemActionsWrapper ref={actionWrapperRef}>
+            <span ref={cardActionsRef}>
+              <Trash color={theme.colors.lightGray} onClick={() => handleDeleteCard()} />
+            </span>
+          </CardItemActionsWrapper>
+        </CardItemActions>
+      )}
+    </CardItem>
+  )
+}
+
+export const PaymentOptionStripe = (props) => {
+  const paymentOptionStripeProps = {
+    ...props,
+    UIComponent: PaymentOptionStripeUI
+  }
+  return (
+    <PaymentOptionStripeController {...paymentOptionStripeProps} />
+  )
+}

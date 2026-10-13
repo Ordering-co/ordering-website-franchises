@@ -1,0 +1,32 @@
+{
+  "app_id": "web_franchises_x",
+  "app_internal_name": "franchise",
+  "notification_app": "orderingweb",
+  "app_name": "Franchise Website",
+  "project": "your-project",
+  "api": {
+    "url": "https://api.orderingplus.com",
+    "language": "en",
+    "version": "v400"
+  },
+  "socket": {
+    "url": "https://sockets.orderingplus.com"
+  },
+  "project_error_redirect_url": "",
+  "use_marketplace": false,
+  "use_project_domain": false,
+  "use_project_subdomain": false,
+  "store_android_id": "0",
+  "store_apple_id": "0",
+  "store_kindle_id": "0",
+  "store_facebook_pixel_id": "0",
+  "store_google_analytics_id": "0",
+  "store_segment_id": "0",
+  "url_dashboard": "https://dashboard.example.com",
+  "contact_email": "support@example.com",
+  "use_kiosk": false,
+  "businessSlug": "",
+  "franchiseSlug": null,
+  "isCancellation": false,
+  "useOptimizeLoad": true
+}

@@ -1,0 +1,13 @@
+services:
+  website-franchises-dev:
+    container_name: website_franchises_c
+    image: website_franchises_image
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/website-franchises
+      - /website-franchises/node_modules
+    command: pnpm run dev

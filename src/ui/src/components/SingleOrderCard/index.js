@@ -1,0 +1,332 @@
+import React, { useState } from 'react'
+import { useTheme } from 'styled-components'
+import Skeleton from 'react-loading-skeleton'
+import { Heart as DisLike, HeartFill as Like } from 'react-bootstrap-icons'
+
+import {
+  Container,
+  Content,
+  Price,
+  BusinessLogoWrapper,
+  ButtonWrapper,
+  FavoriteWrapper,
+  ReviewWrapper,
+  MultiLogosContainer,
+  OrderStatusContainer
+} from './styles'
+import { BusinessInformation } from '../OrdersOption/styles'
+import { OrderEta } from '../OrderDetails/OrderEta'
+
+import { useLanguage, useUtils, useConfig, useOrder, SingleOrderCard as SingleOrderCardController } from '~components'
+
+import {
+  generalUtilities,
+  Button,
+  Modal,
+  Confirm,
+  ReviewOrder,
+  ReviewProduct,
+  ReviewDriver
+} from '~ui'
+
+const SingleOrderCardUI = (props) => {
+  const {
+    order,
+    isBusinessesPage,
+    handleReorder,
+    customArray,
+    onRedirectPage,
+    pastOrders,
+    isCustomerMode,
+    handleFavoriteOrder,
+    isSkeleton,
+    isFavorite,
+    handleRemoveCart,
+    cartState,
+    reorderLoading
+  } = props
+
+  const [, t] = useLanguage()
+  const theme = useTheme()
+  const [{ carts }] = useOrder()
+  const [{ parsePrice, parseDate, optimizeImage }] = useUtils()
+  const [{ configs }] = useConfig()
+  const { getOrderStatus } = generalUtilities()
+  const [isReviewOpen, setIsReviewOpen] = useState(false)
+  const [reviewStatus, setReviewStatus] = useState({ order: false, product: false, driver: false })
+  const [confirm, setConfirm] = useState({ open: false, content: null, handleOnAccept: null })
+  const [isOrderReviewed, setIsOrderReviewed] = useState(false)
+  const [isProductReviewed, setIsProductReviewed] = useState(false)
+  const [isDriverReviewed, setIsDriverReviewed] = useState(false)
+
+  const isGiftCardOrder = !order?.business_id
+
+  const handleClickCard = (e, order) => {
+    if (e.target.closest('.favorite') || e.target.closest('.review') || e.target.closest('.reorder')) return
+
+    if (customArray) {
+      onRedirectPage({ page: 'checkout', params: { cartUuid: order.uuid } })
+    } else {
+      window.sessionStorage.setItem('order-redirect', true)
+      order?.cart_group_id
+        ? onRedirectPage({ page: 'multi_orders', params: { orderId: order.cart_group_id } })
+        : onRedirectPage({ page: 'order_detail', params: { orderId: order.uuid } })
+    }
+  }
+
+  const closeReviewOrder = () => {
+    if (!isProductReviewed) setReviewStatus({ order: false, product: true, driver: false })
+    else if (order?.driver && !order?.user_review && !isDriverReviewed) setReviewStatus({ order: false, product: false, driver: true })
+    else handleCloseReivew()
+  }
+
+  const closeReviewProduct = () => {
+    if (order?.driver && !order?.user_review && !isDriverReviewed) setReviewStatus({ order: false, product: false, driver: true })
+    else {
+      setIsDriverReviewed(true)
+      handleCloseReivew()
+    }
+  }
+  const handleOpenReview = () => {
+    if (!order?.review && !isOrderReviewed) setReviewStatus({ order: true, product: false, driver: false })
+    else if (!isProductReviewed) setReviewStatus({ order: false, product: true, driver: false })
+    else if (order?.driver && !order?.user_review && !isDriverReviewed) setReviewStatus({ order: false, product: false, driver: true })
+    else {
+      setIsReviewOpen(false)
+      return
+    }
+    setIsReviewOpen(true)
+  }
+
+  const handleCloseReivew = () => {
+    setReviewStatus({ order: false, product: false, driver: false })
+    setIsReviewOpen(false)
+  }
+
+  const handleClickReview = (order) => {
+    handleOpenReview && handleOpenReview()
+  }
+
+  const handleChangeFavorite = (order) => {
+    handleFavoriteOrder && handleFavoriteOrder(!order?.favorite)
+  }
+
+  const handleClickReorder = (order) => {
+    if (carts[`businessId:${order?.business_id}`] && carts[`businessId:${order?.business_id}`]?.products?.length > 0) {
+      setConfirm({
+        open: true,
+        content: t('QUESTION_DELETE_PRODUCTS_FROM_CART', 'Are you sure that you want to delete all products from cart?'),
+        handleOnAccept: () => {
+          handleRemoveCart()
+          setConfirm({ ...confirm, open: false })
+        }
+      })
+    } else {
+      handleReorder(order.id)
+    }
+  }
+
+  const handleOriginalReorder = () => {
+    setConfirm({ ...confirm, open: false })
+    handleReorder(order.id)
+  }
+
+  const hideBusinessLogo = true
+  const hideBusinessName = theme?.orders?.components?.business_name?.hidden
+  const hideOrderNumber = theme?.orders?.components?.order_number?.hidden
+  const hideReviewOrderButton = theme?.orders?.components?.review_order_button?.hidden
+  const hideReorderButton = theme?.orders?.components?.reorder_button?.hidden
+  const hideFavorite = theme?.orders?.components?.favorite?.hidden
+  const hideOrderStatus = theme?.orders?.components?.order_status?.hidden
+  const changeIdToExternalId = configs?.change_order_id?.value === '1'
+
+  return (
+    <>
+      <Container
+        id='order-card'
+        isFavorite={isFavorite}
+        isBusinessesPage={isBusinessesPage}
+        isCustomerMode={isCustomerMode}
+        onClick={(e) => handleClickCard(e, order)}
+      >
+        <Content isCustomerMode={isCustomerMode}>
+          {isSkeleton
+            ? (
+              <Skeleton width={60} height={60} />
+              )
+            : (
+              <>
+                {!isCustomerMode && !hideBusinessLogo && (
+                  <>
+                    {order?.business?.length > 1
+                      ? (
+                        <MultiLogosContainer>
+                          {order?.business?.map((business, i) => i < 2 && (
+                            <BusinessLogoWrapper
+                              key={business?.id}
+                              bgimage={optimizeImage(business?.logo || theme.images?.dummies?.businessLogo, 'h_400,c_limit')}
+                              isMulti
+                            />
+                          ))}
+                          {order?.business?.length > 1 && (order?.business?.length - 2) > 0 && (
+                            <p>
+                              + {order?.business?.length - 2}
+                            </p>
+                          )}
+                        </MultiLogosContainer>
+                        )
+                      : (
+                        <BusinessLogoWrapper bgimage={optimizeImage(order?.business?.logo || theme.images?.dummies?.businessLogo, 'h_400,c_limit')} />
+                        )}
+                  </>
+                )}
+              </>
+              )}
+
+          <BusinessInformation activeOrders isMultiCart={order?.business?.length > 1}>
+            {!hideBusinessName && (
+              <>
+                <h2>{isSkeleton ? <Skeleton width={120} /> : order?.business?.length > 1 ? `${t('GROUP_ORDER', 'Group Order')} ${t('NO', 'No')}. ${order?.cart_group_id}` : isGiftCardOrder ? t('GIFT_CARD', 'Gift Card') : order.business?.name}</h2>
+              </>
+            )}
+
+            {
+              isSkeleton
+                ? (
+                  <div className='orders-detail'>
+                    <Skeleton width={150} />
+                  </div>
+                  )
+                : (
+                  <div className='orders-detail'>
+                    {(order?.id || (changeIdToExternalId && order?.external_id)) && !hideOrderNumber && (
+                      <>
+                        <p name='order_number' className='order-number'>
+                          {order?.business?.length > 1 ? `${order?.business?.length} ${t('ORDERS', 'orders')}` : (changeIdToExternalId && order?.external_id) || (`${t('ORDER_NUM', 'Order No.')} ${order.id}`)}
+                          {' • '}
+                          {pastOrders
+                            ? order?.delivery_datetime_utc
+                              ? parseDate(order?.delivery_datetime_utc, { outputFormat: 'MM/DD/YY hh:mm A' })
+                              : parseDate(order?.delivery_datetime, { utc: false })
+                            : <OrderEta order={order} />
+                          }
+                        </p>
+                      </>
+                    )}
+                  </div>
+                  )
+            }
+
+            <OrderStatusContainer>
+              {order?.products?.length > 0 && (
+                <p>
+                  {order?.products?.length} {order?.products?.length === 1 ? t('PRODUCT', 'Product') : t('PRODUCTS', 'Products')}
+                </p>
+              )}
+              {!hideOrderStatus && (
+                <p className={`order-status ${getOrderStatus(order.status)?.percentage === 100 ? 'completed' : ''}`}>{isSkeleton ? <Skeleton width={80} /> : getOrderStatus(order.status)?.value}</p>
+              )}
+            </OrderStatusContainer>
+          </BusinessInformation>
+          <div className='buttons-wrapper'>
+            {pastOrders && !isGiftCardOrder && (
+              <ButtonWrapper isCustomerMode={isCustomerMode}>
+                {!isOrderReviewed && (!order?.review || (order.driver && !order?.user_review)) && !hideReviewOrderButton && !isCustomerMode && (
+                  <Button
+                    color='gray'
+                    className='review'
+                    onClick={() => handleClickReview(order)}
+                  >
+                    {t('REVIEW', 'Review')}
+                  </Button>
+                )}
+                {order.cart && typeof order?.id === 'number' && !hideReorderButton && (
+                  <Button
+                    color='primary'
+                    className='reorder'
+                    onClick={() => handleClickReorder(order)}
+                    disabled={reorderLoading || cartState?.loading}
+                  >
+                    {reorderLoading || cartState?.loading ? t('LOADING', 'Loading...') : t('REORDER', 'Reorder')}
+                  </Button>
+                )}
+              </ButtonWrapper>
+            )}
+            {!isCustomerMode && (
+              <Price isBusinessesPage={isBusinessesPage} isFavorite={isFavorite}>
+                {
+                  !pastOrders && !isFavorite && (
+                    <h2>
+                      {isSkeleton ? <Skeleton width={50} /> : parsePrice(order?.business?.length > 1 ? order?.total : order?.summary?.total || order?.total)}
+                    </h2>
+                  )
+                }
+                {!order?.business?.length && !hideFavorite && isFavorite && (
+                  <FavoriteWrapper onClick={() => handleChangeFavorite(order)} className='favorite'>
+                    {isSkeleton
+                      ? <Skeleton width={20} height={20} />
+                      : (
+                        <>
+                          {order?.favorite ? <Like /> : <DisLike />}
+                        </>
+                        )}
+                  </FavoriteWrapper>
+                )}
+              </Price>
+            )}
+            {!order?.business?.length && !hideFavorite && !isFavorite && !isCustomerMode && (
+              <FavoriteWrapper onClick={() => handleChangeFavorite(order)} className='favorite'>
+                {isSkeleton
+                  ? <Skeleton width={20} height={20} />
+                  : (
+                    <>
+                      {order?.favorite ? <Like /> : <DisLike />}
+                    </>
+                    )}
+              </FavoriteWrapper>
+            )}
+          </div>
+        </Content>
+      </Container>
+      {isReviewOpen && (
+        <Modal
+          closeIconRight
+          open={isReviewOpen}
+          onClose={handleCloseReivew}
+          title={order
+            ? t('REVIEWS', 'Reviews')
+            : t('LOADING', theme?.defaultLanguages?.LOADING || 'Loading...')}
+        >
+          <ReviewWrapper>
+            {
+              reviewStatus?.order
+                ? <ReviewOrder order={order} closeReviewOrder={closeReviewOrder} setIsReviewed={setIsOrderReviewed} />
+                : (reviewStatus?.product
+                    ? <ReviewProduct order={order} closeReviewProduct={closeReviewProduct} setIsProductReviewed={setIsProductReviewed} />
+                    : <ReviewDriver order={order} closeReviewDriver={handleCloseReivew} setIsDriverReviewed={setIsDriverReviewed} />)
+            }
+          </ReviewWrapper>
+
+        </Modal>
+      )}
+      <Confirm
+        title={t('ORDER', 'Order')}
+        content={confirm.content}
+        acceptText={t('ACCEPT', 'Accept')}
+        open={confirm.open}
+        onClose={() => handleOriginalReorder()}
+        onCancel={() => handleOriginalReorder()}
+        onAccept={confirm.handleOnAccept}
+        closeOnBackdrop={false}
+      />
+    </>
+  )
+}
+
+export const SingleOrderCard = (props) => {
+  const singleOrderCardProps = {
+    ...props,
+    UIComponent: SingleOrderCardUI
+  }
+  return <SingleOrderCardController {...singleOrderCardProps} />
+}

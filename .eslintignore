@@ -1,0 +1,10 @@
+node_modules
+build
+dist
+.wrangler
+coverage
+public
+*.min.js
+sw.js
+workbox-*.js
+src/@/components
