@@ -8,6 +8,7 @@ import {
 } from './styles'
 
 import { LoginGuest as LoginGuestController, useLanguage, useSession, useEvent, useOrder, useConfig } from '~components'
+import { useGuestCheckoutPermission } from '~/hooks/useGuestCheckoutPermission'
 
 import {
   UserDetails,
@@ -31,6 +32,11 @@ const LoginGuestUI = (props) => {
   const [events] = useEvent()
   const theme = useTheme()
   const [{ carts, options }] = useOrder()
+  const { guestCheckoutAllowed, canUseGuestCheckout, canPlaceOrder } = useGuestCheckoutPermission({
+    configs,
+    orderType: options?.type,
+    user
+  })
 
   const [pageToShow, setPageToShow] = useState(cartUuid ? 'question' : 'login')
   const [requiredFields, setRequiredFields] = useState([])
@@ -147,6 +153,7 @@ const LoginGuestUI = (props) => {
 
   const handleCustomModalClick = (e, { page }) => {
     e.preventDefault()
+    if (page === 'guest_signup' && !canUseGuestCheckout()) return
     setPageToShow(page)
   }
 
@@ -171,6 +178,10 @@ const LoginGuestUI = (props) => {
     window?.scrollTo(0, 0)
   }, [pageToShow])
 
+  useEffect(() => {
+    if (pageToShow === 'guest_signup' && !guestCheckoutAllowed) setPageToShow(cartUuid ? 'question' : 'login')
+  }, [pageToShow, guestCheckoutAllowed, cartUuid])
+
   return (
     <Container>
       {pageToShow === 'question' && (
@@ -183,7 +194,7 @@ const LoginGuestUI = (props) => {
               <Button color='primary' onClick={(e) => handleCustomModalClick(e, { page: 'login' })}>{t('LOGIN', 'Log in')}</Button>
               <Button color='primary' outline onClick={(e) => handleCustomModalClick(e, { page: 'signup' })}>{t('SIGN_UP', 'Sign up')}</Button>
             </div>
-            {configs?.guest_checkout_enabled?.value === '1' && (
+            {guestCheckoutAllowed && (
             <div className='box-container'>
               <h2>{t('GUEST_CHECKOUT', 'Guest Checkout')}</h2>
               <p>{t('GUEST_CHECKOUT_DES', 'Guests can still receive points for today’s purchase.')}</p>
@@ -231,7 +242,7 @@ const LoginGuestUI = (props) => {
           isGuest
         />
       )}
-      {pageToShow === 'guest_signup' && (
+      {pageToShow === 'guest_signup' && guestCheckoutAllowed && (
         <>
           <UserDetails
             isUserDetailsEdit
@@ -239,7 +250,13 @@ const LoginGuestUI = (props) => {
             businessId={cart?.business_id}
             requiredFields={requiredFields}
             checkoutFields={checkoutFields}
-            handleSuccessUpdate={handleSuccessLogin}
+            handleSuccessUpdate={(updatedUser) => {
+              if (!canPlaceOrder(true)) {
+                setPageToShow(cartUuid ? 'question' : 'login')
+                return
+              }
+              handleSuccessLogin(updatedUser)
+            }}
             cartUuid={cartUuid}
             notificationState={notificationState}
             useDefualtSessionManager

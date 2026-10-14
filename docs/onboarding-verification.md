@@ -1,6 +1,6 @@
 # Evidencia del onboarding de Franquicias
 
-Verificado el 14 de octubre de 2026 en la rama `codex/sergio-137-product-onboarding`, base `3d8820f`. Esta evidencia distingue comandos, pruebas sintéticas y comprobación de navegador. No se publicó. Esta implementación no cambia el backend.
+Verificado el 14 de octubre de 2026 en la rama `codex/sergio-137-product-onboarding`. La implementación inicial partió de `3d8820f`; se revalidó el árbol fusionado de `126b32d4e28319f01c4f9872caeea8157fdc5c1f` con `origin/main` en `cea1355496f67d1b6e4e57fecf8c24d93d4bac34`, antes de que la sesión principal cree el commit de merge. Esta evidencia distingue comandos, pruebas sintéticas y comprobación de navegador. Esta implementación no cambia el backend.
 
 | Comprobación | Resultado | Evidencia |
 | --- | --- | --- |
@@ -8,16 +8,26 @@ Verificado el 14 de octubre de 2026 en la rama `codex/sergio-137-product-onboard
 | Instalación | PASS frozen | `HUSKY=0 pnpm install --frozen-lockfile`; resolución omitida, lockfile sin diff |
 | Build | PASS | `pnpm build`; avisos existentes de ciclos entre chunks y tamaño superior a 500 kB |
 | Lint | PASS | `pnpm lint:check`; se corrigieron además tres comillas preexistentes de dos tests sin cambiar sus assertions |
-| i18n | PASS | `pnpm i18n:verify`: 1103 claves; `pnpm i18n:check-generated`: coincide con escaneo |
+| i18n | PASS | `pnpm i18n:verify`: 1104 claves; `pnpm i18n:check-generated`: coincide con escaneo |
 | Helper común y adapter real | PASS, 32 tests | `pnpm setup:test`; fixtures temporales, no backend real ni configuración del checkout |
 | Runtime seleccionado | PASS, 46 tests / 6 archivos | Scope A/B no destructivo, SDK original, ID numérico y consumidores root/home/cart/productos/checkout |
-| Suite completa + cobertura | PASS, 254 archivos / 772 tests | `pnpm test:coverage` terminó con exit 0 tras las correcciones de scope, ID, push y navegación local |
-| Cobertura estricta | PASS, 77.56% / umbral 70% | `node scripts/coverage-summary.js --no-run --strict`; inventario de 251 fuentes con tests, no todo el código |
+| Suite completa + cobertura | PASS, 256 archivos / 781 tests | `pnpm test:coverage` terminó con exit 0 tras las correcciones de scope, ID, push y navegación local |
+| Cobertura estricta | PASS, 77.81% / umbral 70% | `node scripts/coverage-summary.js --no-run --strict`; inventario de 253 fuentes con tests, no todo el código |
 | Preview sin push y catálogo público | PASS, 12 tests / 5 archivos | No cola/SDK OneSignal local, Firebase sin permission/worker/token, badge local y navegación sin guest save; producción conserva el flujo de invitado |
 | Catálogo sin Maps ni dirección | PASS, 28 tests / 5 archivos | Defaults públicos preparados antes de proveedores; parámetros de lectura pickup/location; opciones personales intactas; sin autoactivar tienda |
 | Layout del catálogo local | PASS en navegador real | Título de tarjeta: x=94.5, y=342.5, ancho=648 en viewport de 1269 px; captura del catálogo visible |
-| Datos protegidos | Lockfile, licencia y SDK conservados | `pnpm-lock.yaml`, `.gitmodules`, `license-ordering.txt` y gitlink `3d0d34b42fb2dacfe640baaa8234eb9f4d2a0f72` intactos; configuración e indicador temporales de QA a restaurar por la sesión principal antes de integrar |
+| Datos protegidos | Plantilla, lockfile y licencia conservados; SDK actualizado desde main | Sin diff de `src/config.json`, `pnpm-lock.yaml`, `.gitmodules` o `license-ordering.txt` durante la revalidación; índice y checkout del SDK coinciden en `e1222c32a8eaeb6999ab1df52cb10dfa844d7888`, igual que main |
 | Navegador con franquicia real | PASS en catálogo y HMR | Proyecto y franquicia elegidos explícitamente; tarjeta real visible y edición del indicador aplicada sin recarga |
+
+## Revalidación al actualizar la base
+
+La sesión principal preparó un merge sin conflictos de `origin/main` (`cea1355496f67d1b6e4e57fecf8c24d93d4bac34`) sobre la entrega publicada `126b32d4e28319f01c4f9872caeea8157fdc5c1f`. La base añade permisos de checkout de invitados por tipo de pedido, sus tests, la traducción correspondiente y el gitlink del SDK `e1222c32a8eaeb6999ab1df52cb10dfa844d7888`.
+
+Se comprobaron ambas intenciones: el diff frente a main conserva los 43 archivos del onboarding; el diff frente a la punta anterior incorpora los 17 archivos de main, incluido el SDK fijado. No se resolvió ningún conflicto descartando un lado ni se editó ese código durante la revalidación. La plantilla quedó restaurada, sin diferencias locales ni en el índice. El SDK del checkout coincide exactamente con el gitlink del índice y con main.
+
+Con Node 24.21.0 y pnpm 9.15.0: instalación frozen PASS sin nueva resolución, helper PASS (32 tests), suite con cobertura PASS (256 archivos, 781 tests), build PASS, lint PASS e i18n PASS (1104 claves y archivos generados coincidentes). El gate estricto dio 77.81% frente al umbral de 70%, sobre 253 fuentes con tests. Los checks no dejaron cambios en los archivos generados.
+
+Las capturas siguientes documentan el catálogo y HMR comprobados antes de esta actualización de base. No sustituyen una comprobación del runtime con el SDK nuevo: la sesión principal realizará la prueba desde un clon anónimo después del commit de merge.
 
 ## Qué prueban los tests
 

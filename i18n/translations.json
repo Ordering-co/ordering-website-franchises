@@ -6481,6 +6481,20 @@
     "bg": "Вход",
     "tr": "Giriş yapmak"
   },
+  "LOGIN_SIGN_UP_COMPLETE_ORDER": {
+    "en": "Login/Sign up to complete your order.",
+    "es": "Inicia sesión o regístrate para completar tu pedido.",
+    "fr": "Connectez-vous ou inscrivez-vous pour terminer votre commande.",
+    "it": "Accedi o registrati per completare il tuo ordine.",
+    "de": "Melde dich an oder registriere dich, um deine Bestellung abzuschließen.",
+    "pt": "Faça login ou cadastre-se para concluir seu pedido.",
+    "da": "Log ind eller tilmeld dig for at gennemføre din ordre.",
+    "nl": "Log in of registreer je om je bestelling af te ronden.",
+    "ar": "سجّل الدخول أو أنشئ حسابًا لإكمال طلبك.",
+    "el": "Συνδεθείτε ή εγγραφείτε για να ολοκληρώσετε την παραγγελία σας.",
+    "bg": "Влезте или се регистрирайте, за да завършите поръчката си.",
+    "tr": "Siparişinizi tamamlamak için giriş yapın veya kaydolun."
+  },
   "LOGIN_SIGNUP": {
     "en": "Login / Sign Up",
     "es": "Iniciar sesión / Registrarse",

@@ -462,6 +462,7 @@ key,value,source,note
 "LOCATION","Location","submodule","no_fallback_in_code:value_supplied"
 "LOG_IN","Log in","app",""
 "LOGIN","Login","app",""
+"LOGIN_SIGN_UP_COMPLETE_ORDER","Login/Sign up to complete your order.","app",""
 "LOGIN_SIGNUP","Login / Sign Up","app",""
 "LOGIN_TITLE_PAGE","Log in to OrderingPlus!","app",""
 "LOGIN_WITH_SMS","Login with SMS","app",""

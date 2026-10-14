@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import VscWarning from '@meronex/icons/vsc/VscWarning'
 import { ChevronUp, ChevronLeft } from 'react-bootstrap-icons'
 import Skeleton from 'react-loading-skeleton'
@@ -70,6 +70,7 @@ import {
 } from './iframePaymentMessage'
 import { getCheckoutCartFetchPlan } from './getCheckoutCartFetchPlan'
 import { shouldSkipPlaceOrderAsGuest } from './guestPlaceOrder'
+import { useGuestCheckoutPermission } from '~/hooks/useGuestCheckoutPermission'
 import { isEatInSpotNumberMissing } from './isEatInSpotNumberMissing'
 import { parseJsonStorage } from '~/utils/parseJsonStorage'
 import { parseDriverTipOptions } from '~/utils/parseDriverTipOptions'
@@ -158,6 +159,15 @@ const CheckoutUI = (props) => {
   const [ordering] = useApi()
   const isArchiesColombia = String(ordering?.project || '').trim().toLowerCase() === 'archiescolombia'
   const [{ configs }] = useConfig()
+  const { guestCheckoutAllowed, guestOrderBlocked, canUseGuestCheckout, canPlaceOrder } = useGuestCheckoutPermission({
+    configs,
+    orderType: options?.type,
+    user
+  })
+  const guardedOnPlaceOrderClick = useCallback((...args) => {
+    if (!canPlaceOrder()) return
+    return onPlaceOrderClick?.(...args)
+  }, [canPlaceOrder, onPlaceOrderClick])
   const [, { setBusiness }] = useBusiness()
   const [, { showToast }] = useToast()
   const [customerState] = useCustomer()
@@ -225,7 +235,7 @@ const CheckoutUI = (props) => {
     cartSpotNumber: cart?.spot_number,
     cartStateSpotNumber: cartState?.cart?.spot_number
   })
-  const isDisablePlaceOrderButton = !cart?.valid ||
+  const isDisablePlaceOrderButton = guestOrderBlocked || !cart?.valid ||
     ((!paymethodSelected || ((!cart?.paymethod_id && cart?.business_id) || (!paymethodSelected && !cart?.business_id))) && cart?.balance > 0) ||
     (cardsMethods.includes(paymethodSelected?.gateway) && cardList?.cards?.length === 0) ||
     placing ||
@@ -306,6 +316,7 @@ const CheckoutUI = (props) => {
   }
 
   const handlePlaceOrder = () => {
+    if (!canPlaceOrder()) return
     if (placing) return
     if (stripePaymethods.includes(paymethodSelected?.gateway) && user?.guest_id) {
       setOpenModal({ ...openModal, signup: true, isGuest: true })
@@ -336,6 +347,7 @@ const CheckoutUI = (props) => {
   }
 
   const handlePlaceOrderAsGuest = () => {
+    if (!canPlaceOrder(true)) return
     if (shouldSkipPlaceOrderAsGuest(placing)) return
     setIsOpen(false)
     const body = {}
@@ -496,6 +508,10 @@ const CheckoutUI = (props) => {
   }, [checkoutFieldsState, user, customerState, options?.type])
 
   useEffect(() => {
+    if (!guestCheckoutAllowed) setAllowedGuest(false)
+  }, [guestCheckoutAllowed])
+
+  useEffect(() => {
     if (errors) {
       setAlertState({
         open: true,
@@ -641,7 +657,7 @@ const CheckoutUI = (props) => {
                       isCustomerMode={isCustomerMode}
                       paySelected={paymethodSelected}
                       handlePlaceOrder={handlePlaceOrder}
-                      onPlaceOrderClick={onPlaceOrderClick}
+                      onPlaceOrderClick={guardedOnPlaceOrderClick}
                       setCardList={setCardList}
                       setShowPaymentMethods={setShowPaymentMethods}
                       requiredFields={requiredFields}
@@ -825,7 +841,7 @@ const CheckoutUI = (props) => {
                                     <Skeleton height={35} style={{ marginBottom: '10px' }} />
                                     <Skeleton height={35} style={{ marginBottom: '10px' }} />
                                   </div>)
-                                  : ((user?.guest_id && !allowedGuest)
+                                  : ((user?.guest_id && (!allowedGuest || !guestCheckoutAllowed))
                                       ? (<AuthButtonList>
                                       <h2>{t('CUSTOMER_DETAILS', 'Customer details')}</h2>
                                       <Button color='primary' onClick={() => setOpenModal({ ...openModal, signup: true })}>
@@ -834,9 +850,11 @@ const CheckoutUI = (props) => {
                                       <Button color='primary' outline onClick={() => setOpenModal({ ...openModal, login: true })}>
                                         {t('LOGIN', 'Login')}
                                       </Button>
-                                      <Button color='black' outline onClick={() => setAllowedGuest(true)}>
-                                        {t('CONTINUE_AS_GUEST', 'Continue as guest')}
-                                      </Button>
+                                      {guestCheckoutAllowed && (
+                                        <Button color='black' outline onClick={() => canUseGuestCheckout() && setAllowedGuest(true)}>
+                                          {t('CONTINUE_AS_GUEST', 'Continue as guest')}
+                                        </Button>
+                                      )}
                                     </AuthButtonList>)
                                       : (<UserDetails
                                       isUserDetailsEdit={isUserDetailsEdit}
@@ -1428,6 +1446,20 @@ const CheckoutUI = (props) => {
                     </WrapperPlaceOrderButton>
                   )}
 
+                  {guestOrderBlocked && (
+                    <>
+                      <WarningText>{t('LOGIN_SIGN_UP_COMPLETE_ORDER', 'Login/Sign up to complete your order.')}</WarningText>
+                      <AuthButtonList>
+                        <Button color='primary' onClick={() => setOpenModal({ ...openModal, login: true })}>
+                          {t('LOGIN', 'Login')}
+                        </Button>
+                        <Button color='primary' outline onClick={() => setOpenModal({ ...openModal, signup: true })}>
+                          {t('SIGN_UP', 'Sign up')}
+                        </Button>
+                      </AuthButtonList>
+                    </>
+                  )}
+
                   {!cart?.valid_address && cart?.status !== 2 && (
                     <WarningText>
                       {t('INVALID_CART_ADDRESS', 'Selected address is invalid, please select a closer address.')}
@@ -1557,8 +1589,9 @@ const CheckoutUI = (props) => {
             handlePlaceOrderAsGuest={handlePlaceOrderAsGuest}
             isOrderTypeValidationField
             checkoutFields={checkoutFields}
-            isAllowGuest={paymethodSelected?.gateway === 'cash' || paymethodSelected?.gateway === 'card_delivery'}
+            isAllowGuest={guestCheckoutAllowed && (paymethodSelected?.gateway === 'cash' || paymethodSelected?.gateway === 'card_delivery')}
             onClose={() => {
+              if (!canPlaceOrder()) return
               setIsOpen(false)
               if (paymethodClicked) {
                 setPaymethodClicked({

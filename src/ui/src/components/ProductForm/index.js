@@ -56,10 +56,10 @@ import {
 } from '~components'
 import { parseJsonStorage } from '~/utils/parseJsonStorage'
 import { parseOrderTypesAllowed } from '~/utils/parseOrderTypesAllowed'
+import { isGuestCheckoutAllowed } from '~/utils/guestCheckout'
 
 import {
   scrollTo,
-  orderTypeList,
   useWindowSize,
   Modal,
   Alert,
@@ -138,8 +138,8 @@ const ProductOptionsUI = (props) => {
 
   const [{ configs }] = useConfig()
   const unaddressedTypes = parseOrderTypesAllowed(configs?.unaddressed_order_types_allowed?.value)
-  const guestCheckoutEnabled = configs?.guest_checkout_enabled?.value === '1'
-  const orderTypeEnabled = !orderTypeList[orderState?.options?.type - 1] || configs?.allowed_order_types_guest_checkout?.value?.includes(orderTypeList[orderState?.options?.type - 1])
+  const guestCheckoutEnabled = isGuestCheckoutAllowed(configs, orderState?.options?.type)
+  const orderTypeEnabled = guestCheckoutEnabled
   const hideProductDescription = theme?.business_view?.components?.products?.components?.product?.components?.description?.hidden
   const hideProductDummyLogo = theme?.business_view?.components?.products?.components?.product?.components?.dummy?.hidden
   const hideFavoriteIcon = theme?.business_view?.components?.products?.components?.product?.components?.favorite?.hidden
@@ -261,6 +261,7 @@ const ProductOptionsUI = (props) => {
   }
 
   const handleUpdateGuest = () => {
+    if (!isGuestCheckoutAllowed(configs, orderState?.options?.type)) return
     const guestToken = nanoid()
     if (guestToken) handleCreateGuestUser({ guest_token: guestToken })
   }

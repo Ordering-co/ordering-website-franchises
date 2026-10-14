@@ -48,6 +48,7 @@ import {
 } from './styles'
 
 import { useUtils, useLanguage, useSession, useConfig, useOrder, ProductForm as ProductFormController } from '~components'
+import { isGuestCheckoutAllowed } from '~/utils/guestCheckout'
 import {
   Alert,
   Modal,
@@ -55,7 +56,6 @@ import {
   SignUpForm,
   Button,
   getTimes,
-  orderTypeList,
   ForgotPasswordForm
 } from '~ui'
 
@@ -92,8 +92,8 @@ const ServiceFormUI = (props) => {
   const [isEnabled, setIsEnabled] = useState(false)
   const [datesList, setDatesList] = useState([])
 
-  const guestCheckoutEnabled = configs?.guest_checkout_enabled?.value === '1'
-  const orderTypeEnabled = !orderTypeList[orderState?.options?.type - 1] || configs?.allowed_order_types_guest_checkout?.value?.includes(orderTypeList[orderState?.options?.type - 1])
+  const guestCheckoutEnabled = isGuestCheckoutAllowed(configs, orderState?.options?.type)
+  const orderTypeEnabled = guestCheckoutEnabled
 
   const dropDownRef = useRef()
   const is12Hours = configs?.format_time?.value === '12'
@@ -104,6 +104,7 @@ const ServiceFormUI = (props) => {
   }
 
   const handleUpdateGuest = () => {
+    if (!isGuestCheckoutAllowed(configs, orderState?.options?.type)) return
     const guestToken = nanoid()
     if (guestToken) handleCreateGuestUser({ guest_token: guestToken })
   }

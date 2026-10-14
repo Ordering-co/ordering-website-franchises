@@ -9,7 +9,12 @@ vi.mock('~components', () => ({
   useSession: () => [{ user: null, loading: false }, { login: vi.fn() }],
   useEvent: () => [{ emit: vi.fn() }],
   useOrder: () => [{ carts: {}, options: { type: 1 } }],
-  useConfig: () => [{ configs: { guest_checkout_enabled: { value: '1' } } }]
+  useConfig: () => [{
+    configs: {
+      guest_checkout_enabled: { value: '1' },
+      allowed_order_types_guest_checkout: { value: ['delivery'] }
+    }
+  }]
 }))
 vi.mock('~ui', () => require('../../../../../test/franchiseUiMock').franchiseUiMock)
 
