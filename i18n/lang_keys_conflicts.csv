@@ -22,7 +22,7 @@ key,value,app_uses,submodule_uses
 "ORDER_STATUS_CANCELLED_BY_CUSTOMER","Order cancelled by customer",3,0
 "ORDER_NOT_PICKEDUP_BY_CUSTOMER","Not picked by customer",1,1
 "ORDER_NOT_PICKEDUP_BY_CUSTOMER","Order not picked up by customer",3,0
-"LOGIN","Login",30,0
+"LOGIN","Login",31,0
 "LOGIN","Log in",1,0
 "MY_ORDERS","My Orders",1,0
 "MY_ORDERS","My orders",2,0

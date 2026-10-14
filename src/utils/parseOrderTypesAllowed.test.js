@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { parseOrderTypesAllowed } from './parseOrderTypesAllowed'
 
 describe('parseOrderTypesAllowed', () => {
-  it("does not throw when the config value is missing and returns", () => {
+  it('does not throw when the config value is missing and returns', () => {
     expect(() => parseOrderTypesAllowed(undefined)).not.toThrow()
     expect(parseOrderTypesAllowed(undefined)).toEqual([])
     expect(parseOrderTypesAllowed(null)).toEqual([])

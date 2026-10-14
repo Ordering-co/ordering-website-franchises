@@ -41,11 +41,11 @@ describe('white-label hardening', () => {
     })).toBe(true)
   })
 
-  it('does not modify the ordering-components submodule', () => {
+  it('keeps the ordering-components checkout clean', () => {
     const output = execFileSync(
       'git',
-      ['status', '--short', '--', 'src/@/components'],
-      { cwd: repoRoot, encoding: 'utf8' }
+      ['status', '--short', '--untracked-files=all'],
+      { cwd: join(repoRoot, 'src/@/components'), encoding: 'utf8' }
     )
     expect(output.trim()).toBe('')
   })
