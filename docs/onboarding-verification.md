@@ -1,6 +1,6 @@
 # Evidencia del onboarding de Franquicias
 
-Verificado el 14 de octubre de 2026 en la rama `codex/sergio-137-product-onboarding`. La implementación inicial partió de `3d8820f`; se revalidó el árbol fusionado de `126b32d4e28319f01c4f9872caeea8157fdc5c1f` con `origin/main` en `cea1355496f67d1b6e4e57fecf8c24d93d4bac34`, antes de que la sesión principal cree el commit de merge. Esta evidencia distingue comandos, pruebas sintéticas y comprobación de navegador. Esta implementación no cambia el backend.
+Verificado el 14 de octubre de 2026 en la rama `codex/sergio-137-product-onboarding`. La implementación inicial partió de `3d8820f`; se revalidó el árbol fusionado de `126b32d4e28319f01c4f9872caeea8157fdc5c1f` con `origin/main` en `cea1355496f67d1b6e4e57fecf8c24d93d4bac34`, y el clon anónimo del commit de merge `78d666461488511d802152948859c35412af2d41`. Esta evidencia distingue comandos, pruebas sintéticas y comprobación de navegador. Esta implementación no cambia el backend.
 
 | Comprobación | Resultado | Evidencia |
 | --- | --- | --- |
@@ -27,7 +27,7 @@ Se comprobaron ambas intenciones: el diff frente a main conserva los 43 archivos
 
 Con Node 24.21.0 y pnpm 9.15.0: instalación frozen PASS sin nueva resolución, helper PASS (32 tests), suite con cobertura PASS (256 archivos, 781 tests), build PASS, lint PASS e i18n PASS (1104 claves y archivos generados coincidentes). El gate estricto dio 77.81% frente al umbral de 70%, sobre 253 fuentes con tests. Los checks no dejaron cambios en los archivos generados.
 
-Las capturas siguientes documentan el catálogo y HMR comprobados antes de esta actualización de base. No sustituyen una comprobación del runtime con el SDK nuevo: la sesión principal realizará la prueba desde un clon anónimo después del commit de merge.
+Las primeras capturas documentan la comprobación previa. La comprobación adicional desde un clon anónimo del commit de merge, con el SDK nuevo, figura en la sección siguiente.
 
 ## Qué prueban los tests
 
@@ -41,9 +41,23 @@ La sesión principal comprobó `/search` con la selección explícita del proyec
 
 ![Catálogo real visible dentro del viewport](evidence/franchise-web-catalogue.png)
 
-Después se cambió temporalmente el texto local del indicador a «My verified Franchise edit». HMR actualizó ese nodo sin recargar la página, conservando la selección visible. Esta captura del indicador registra el primer cambio comprobable; la sesión principal restaurará el texto y la configuración temporal antes de integrar.
+Después se cambió temporalmente el texto local del indicador a «My verified Franchise edit». HMR actualizó ese nodo sin recargar la página, conservando la selección visible. Esta captura del indicador registra el primer cambio comprobable; la sesión principal restauró el texto y la configuración temporal antes de integrar.
 
 ![Primera edición del indicador aplicada por HMR](evidence/franchise-web-hmr.png)
+
+## Clon anónimo del commit fusionado
+
+Se verificó un clon anónimo del commit `78d666461488511d802152948859c35412af2d41`, con el SDK fijado en `e1222c32a8eaeb6999ab1df52cb10dfa844d7888`. La instalación frozen con Node 24.21.0 y pnpm 9.15.0 pasó. `detect`, `configure` y `doctor` terminaron correctamente con el proyecto público `orderingv1` y el slug explícito `burger_palace`; `franchiseSlug` se guardó como ID numérico. Las dos repeticiones de `configure` devolvieron `changed:false` y conservaron bytes exactos.
+
+La comparación completa verificó que `app_name`, `customer_custom_setting` y todos los demás campos ajenos a la selección se conservaron. Son fixtures locales de configuración, no registros de clientes. El [resumen JSON sanitizado](evidence/franchise-web-clean-verification.json) contiene únicamente SHA, versiones, comandos públicos y resultados; excluye rutas privadas, PIDs, backups y configuración completa.
+
+La sesión principal comprobó el catálogo real dentro del viewport y la selección visible de proyecto/franquicia. El título de «Fast Bite» tenía x=94.5, y=342.5 y ancho=648 en un viewport de 1269 px.
+
+![Catálogo real desde el clon anónimo fusionado](evidence/franchise-web-clean-clone.png)
+
+Después cambió temporalmente el indicador a «My clean Franchise Website edit»: HMR actualizó únicamente ese nodo, sin recargar. El indicador se restauró con bytes exactos; el único archivo modificado del clon quedó siendo `src/config.json`, con los fixtures de configuración.
+
+![Edición visible por HMR en el clon anónimo](evidence/franchise-web-clean-hmr.png)
 
 ## Límites
 

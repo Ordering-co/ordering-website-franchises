@@ -1,0 +1,127 @@
+{
+  "product": "franchise-web",
+  "sha": "78d666461488511d802152948859c35412af2d41",
+  "sdkSha": "e1222c32a8eaeb6999ab1df52cb10dfa844d7888",
+  "tools": {
+    "node": "v24.21.0",
+    "pnpm": "9.15.0",
+    "helperCoreSha256": "82d95ca1c46d60e4cb0b23dc84c424ee80cf3b41a9951878d19449b3ff5b3204"
+  },
+  "install": {
+    "command": "HUSKY=0 pnpm install --frozen-lockfile",
+    "exitCode": 0
+  },
+  "commands": [
+    {
+      "command": "node scripts/onboarding/cli.mjs detect",
+      "exitCode": 0,
+      "result": {
+        "status": "connected",
+        "project": "orderingv1"
+      }
+    },
+    {
+      "command": "node scripts/onboarding/cli.mjs configure --project orderingv1 --franchise-slug burger_palace",
+      "exitCode": 0,
+      "result": {
+        "project": "orderingv1",
+        "changed": true,
+        "verification": {
+          "project": true,
+          "authenticated": false,
+          "franchise": true
+        },
+        "selection": {
+          "id": 1,
+          "slug": "burger_palace"
+        }
+      }
+    },
+    {
+      "command": "node scripts/onboarding/cli.mjs doctor",
+      "exitCode": 0,
+      "result": {
+        "project": "orderingv1",
+        "verification": {
+          "project": true,
+          "authenticated": false,
+          "franchise": true
+        },
+        "selection": {
+          "id": 1,
+          "slug": "burger_palace"
+        }
+      }
+    },
+    {
+      "command": "node scripts/onboarding/cli.mjs configure --project orderingv1 --franchise-slug burger_palace",
+      "exitCode": 0,
+      "result": {
+        "project": "orderingv1",
+        "changed": false,
+        "verification": {
+          "project": true,
+          "authenticated": false,
+          "franchise": true
+        },
+        "selection": {
+          "id": 1,
+          "slug": "burger_palace"
+        }
+      }
+    },
+    {
+      "command": "node scripts/onboarding/cli.mjs configure --project orderingv1 --franchise-slug burger_palace",
+      "exitCode": 0,
+      "result": {
+        "project": "orderingv1",
+        "changed": false,
+        "verification": {
+          "project": true,
+          "authenticated": false,
+          "franchise": true
+        },
+        "selection": {
+          "id": 1,
+          "slug": "burger_palace"
+        }
+      }
+    }
+  ],
+  "results": {
+    "configFieldsPreserved": true,
+    "appNamePreserved": true,
+    "customSettingPreserved": true,
+    "numericFranchiseId": 1,
+    "repeatsNoop": true,
+    "repeatedBytesPreserved": true,
+    "browserCatalogueVerified": true,
+    "hmrWithoutReloadVerified": true,
+    "indicatorRestoredExact": true,
+    "cloneOnlyConfigurationFixtureModified": true
+  },
+  "browser": {
+    "verifiedBy": "principal",
+    "project": "orderingv1",
+    "franchise": "burger_palace",
+    "viewportWidth": 1269,
+    "cardHeadingBounds": {
+      "x": 94.5,
+      "y": 342.5,
+      "width": 648
+    },
+    "hmrChangedOnlyIndicator": true,
+    "hmrWithoutReload": true,
+    "indicatorRestoredExact": true
+  },
+  "evidence": {
+    "catalogue": "franchise-web-clean-clone.png",
+    "hmr": "franchise-web-clean-hmr.png"
+  },
+  "limitations": [
+    "Public GET verifies availability, not developer identity or project membership.",
+    "Checkout, payments, real push notifications and consumer login were not tested."
+  ],
+  "verified": true,
+  "verificationScope": "configuration, public catalogue and HMR"
+}
