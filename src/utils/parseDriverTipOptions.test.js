@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { isCombinedDeliveryFeeEnabled, parseDriverTipOptions } from './parseDriverTipOptions'
 
 describe('parseDriverTipOptions', () => {
-  it("does not throw when config JSON is invalid and returns", () => {
+  it('does not throw when config JSON is invalid and returns', () => {
     expect(() => parseDriverTipOptions('{not-json')).not.toThrow()
     expect(parseDriverTipOptions('{not-json')).toEqual([])
     expect(parseDriverTipOptions('')).toEqual([])
@@ -15,7 +15,7 @@ describe('parseDriverTipOptions', () => {
     expect(parseDriverTipOptions([0, 10, 15])).toEqual([0, 10, 15])
   })
 
-  it("returns when parsed JSON is not an array", () => {
+  it('returns when parsed JSON is not an array', () => {
     expect(parseDriverTipOptions('{"tip":10}')).toEqual([])
     expect(parseDriverTipOptions('null')).toEqual([])
   })

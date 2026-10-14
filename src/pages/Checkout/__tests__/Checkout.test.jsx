@@ -1,3 +1,4 @@
+import React from 'react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { renderWithProviders } from '../../../test/renderWithProviders'
 import { CheckoutPage } from '../index'
@@ -7,7 +8,7 @@ const changeMoment = vi.fn()
 const setBusiness = vi.fn()
 
 vi.mock('../../../config', () => ({
-  default: { businessSlug: null, use_kiosk: false }
+  default: { businessSlug: 'explicit-business', use_kiosk: false, localProjectPinned: true }
 }))
 vi.mock('../../../components/HelmetTags', () => ({
   HelmetTags: ({ page }) => <div data-testid='helmet-tags' data-page={page} />
@@ -25,7 +26,7 @@ vi.mock('@stripe/stripe-js/pure', () => ({
 vi.mock('~ui', () => ({
   checkSiteUrl: (_template, fallback) => fallback,
   Checkout: (props) => (
-    <div data-testid='checkout-ui' data-cart-uuid={props.cartUuid}>
+    <div data-testid='checkout-ui' data-cart-uuid={props.cartUuid} data-business-slug={props.businessSlug}>
       <button type='button' onClick={() => props.handleOrderRedirect('order-1')}>order</button>
       <button type='button' onClick={() => props.handleSearchRedirect()}>search</button>
       <button type='button' onClick={() => props.handleStoreRedirect('demo-store')}>store</button>
@@ -50,6 +51,12 @@ vi.mock('react-router-dom', async () => {
 describe('CheckoutPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+  })
+
+  it('keeps the explicitly configured business over a remote single-store theme', () => {
+    const themeOverrides = { my_products: { components: { website_theme: { components: { type: 'single_store', business_slug: 'remote-business' } } } } }
+    const { getByTestId } = renderWithProviders(<CheckoutPage />, { themeOverrides })
+    expect(getByTestId('checkout-ui')).toHaveAttribute('data-business-slug', 'explicit-business')
   })
 
   it('renders checkout helmet tags and passes cart uuid from route', () => {

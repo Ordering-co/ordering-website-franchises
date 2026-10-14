@@ -3,6 +3,7 @@ import { useTheme } from 'styled-components'
 
 import { HelmetTags } from '../../components/HelmetTags'
 import settings from '../../config'
+import { selectedFranchise, selectedBusiness } from '../../utils/localProject'
 
 import { useSite, useEvent } from '~components'
 import { BusinessesListing, checkSiteUrl } from '~ui'
@@ -15,12 +16,23 @@ export const BusinessesList = (props) => {
 
   const websiteThemeType = theme?.my_products?.components?.website_theme?.components?.type
   const websiteThemeBusinessSlug = theme?.my_products?.components?.website_theme?.components?.business_slug
-  const updatedBusinessSlug = (websiteThemeType === 'single_store' && websiteThemeBusinessSlug) || settings?.businessSlug
-  const websiteThemeFranchiseSlug = theme?.my_products?.components?.website_theme?.components?.business_slug
-  const updatedFranchiseSlug = (websiteThemeType === 'franchise' && websiteThemeFranchiseSlug) || settings?.franchiseSlug
+  const updatedBusinessSlug = selectedBusiness(settings, websiteThemeType === 'single_store' && websiteThemeBusinessSlug)
+  const websiteThemeFranchiseSlug = theme?.my_products?.components?.website_theme?.components?.franchise_slug
+  const updatedFranchiseSlug = selectedFranchise(settings, websiteThemeType === 'franchise' && websiteThemeFranchiseSlug)
 
   const businessListingProps = {
     ...props,
+    ...(settings.localProjectPinned
+      ? {
+          isLocalCatalogue: true,
+          initialOrderType: settings.localCatalogueOptions.type,
+          customLocation: settings.localCatalogueOptions.location,
+          isOrderStateReady: true,
+          avoidRefreshUserInfo: true,
+          disabledCities: true,
+          logosLayout: true
+        }
+      : {}),
     isSearchByName: true,
     isSearchByDescription: true,
     franchiseId: updatedFranchiseSlug,

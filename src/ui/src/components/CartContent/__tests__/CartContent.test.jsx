@@ -4,6 +4,8 @@ import { renderWithProviders } from '../../../../../test/renderWithProviders'
 import { baseCartContentUIProps } from '../../../../../test/cartUiTestUtils'
 import { CartContent } from '../index'
 
+vi.mock('~/config', () => ({ default: { localProjectPinned: true, franchiseSlug: 23 } }))
+
 const progress = vi.hoisted(() => vi.fn(() => ({ status: 'progress' })))
 
 vi.mock('~components', () => ({
@@ -24,6 +26,13 @@ describe('CartContent', () => {
     progress.mockClear()
     window.history.replaceState(null, '', '/')
   })
+  it('keeps the numeric local franchise despite a remote theme and supplied franchise', () => {
+    const themeOverrides = { my_products: { components: { website_theme: { components: { type: 'franchise', franchise_slug: 'remote-franchise', business_slug: 'remote-business' } } } } }
+    const cart = { uuid: 'cart-1', business_id: 1, valid: true, status: 0, products: [{ id: 1 }], total: 10 }
+    renderWithProviders(<CartContent carts={[cart]} isOrderStateCarts isOpenCart />, { themeOverrides })
+    expect(progress).toHaveBeenLastCalledWith(expect.objectContaining({ franchiseId: 23 }))
+  })
+
   it('does not request promotional eligibility in checkout', () => {
     window.history.replaceState(null, '', '/checkout/cart-1')
     const cart = { uuid: 'cart-1', business_id: 1, valid: true, status: 0, products: [{ id: 1 }], total: 10 }

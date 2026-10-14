@@ -50,13 +50,16 @@ const BusinessesListingUI = (props) => {
     onBusinessClick,
     handleUpdateBusinessList,
     handleChangeSearch,
-    citiesState
+    citiesState,
+    isLocalCatalogue
   } = props
   const [, t] = useLanguage()
   const [orderState, { changeCityFilter }] = useOrder()
   const [{ auth }] = useSession()
   const [{ configs }] = useConfig()
 
+  const catalogueOrderType = isLocalCatalogue ? props.initialOrderType : orderState?.options?.type
+  const canBrowse = isLocalCatalogue || Boolean(orderState.options?.address?.address)
   const unaddressedTypes = parseOrderTypesAllowed(configs?.unaddressed_order_types_allowed?.value)
   const isAllowUnaddressOrderType = unaddressedTypes.includes(orderState?.options?.type)
   /* const [, { onChangeBusinessSelected }] = useBusinessSelected() */
@@ -121,7 +124,7 @@ const BusinessesListingUI = (props) => {
   const businessControllerProps = {
     className: 'card',
     handleCustomClick: handleBusinessClick,
-    orderType: orderState?.options?.type,
+    orderType: catalogueOrderType,
     onPreorderBusiness: setPreorderBusiness,
     handleUpdateBusinessList,
     favoriteIds,
@@ -134,7 +137,7 @@ const BusinessesListingUI = (props) => {
 
   useEffect(() => {
     if (!businessesList?.businesses?.length) return
-    if (businessesList?.businesses?.length === 1 && configs?.activate_single_store_automatically?.value === '1') {
+    if (!isLocalCatalogue && businessesList?.businesses?.length === 1 && configs?.activate_single_store_automatically?.value === '1') {
       onBusinessClick(businessesList?.businesses[0])
       window.localStorage.setItem('single_business', true)
       return
@@ -150,27 +153,29 @@ const BusinessesListingUI = (props) => {
   }, [businessesList?.businesses?.length])
 
   useEffect(() => {
+    if (isLocalCatalogue) return
     if (!citiesState?.cities?.length || !orderState?.options?.city_id) return
     const selectedCity = citiesState?.cities?.find(city => city?.id === orderState?.options?.city_id)
     if (!selectedCity || !selectedCity?.enabled) changeCityFilter(null)
   }, [citiesState, orderState?.options?.city_id])
 
   return (
-    <BusinessContainer noAddress={!orderState.options?.address?.address && !isAllowUnaddressOrderType}>
-      <BusinessListingContainer>
+    <BusinessContainer noAddress={!canBrowse && !isAllowUnaddressOrderType}>
+      <BusinessListingContainer $isLocalCatalogue={isLocalCatalogue}>
 
-        <AddressMenu onClick={() => handleClickAddress()}>
+        {isLocalCatalogue && <p style={{ padding: '16px' }}>Pickup catalogue preview. Maps and address selection require your own Google Maps key.</p>}
+        {!isLocalCatalogue && <AddressMenu onClick={() => handleClickAddress()}>
           <span>
             {orderState.options?.address?.address || t('WHERE_DO_WE_DELIVERY', 'Where do we delivery?')}
           </span>
           <Pencil />
-        </AddressMenu>
-        {!orderState.options?.address?.address && !isAllowUnaddressOrderType && (
+        </AddressMenu>}
+        {!canBrowse && !isAllowUnaddressOrderType && (
           <NotFoundSource
             content={t('NO_BUSINESSES_TO_SHOW', 'No businesses to show')}
           />
         )}
-        {(orderState.options?.address?.address || isAllowUnaddressOrderType) && (
+        {(canBrowse || isAllowUnaddressOrderType) && (
           <BusinessesWrapper className='businesses-wrapper'>
             <SearchBarWrapper>
               <SearchBar
@@ -198,7 +203,7 @@ const BusinessesListingUI = (props) => {
                       business={business}
                       isBusinessOpen={business.open && business?.enabled !== false}
                       handleCustomClick={handleBusinessClick}
-                      orderType={orderState?.options?.type}
+                      orderType={catalogueOrderType}
                       isCustomLayout={isCustomLayout}
                       isCustomerMode={isCustomerMode}
                       onPreorderBusiness={setPreorderBusiness}
@@ -224,7 +229,7 @@ const BusinessesListingUI = (props) => {
                       className='card'
                       business={{}}
                       isSkeleton
-                      orderType={orderState?.options?.type}
+                      orderType={catalogueOrderType}
                     />
                   ))
                 )}
@@ -240,7 +245,7 @@ const BusinessesListingUI = (props) => {
           </BusinessesWrapper>
         )}
       </BusinessListingContainer>
-      {!businessesList.loading && !orderState.loading && (
+      {!isLocalCatalogue && !businessesList.loading && !orderState.loading && (
         <BusinessesMap
           businessControllerProps={businessControllerProps}
           businessList={(orderState.options?.address?.address || isAllowUnaddressOrderType) ? (businessesList.businesses ?? []) : []}

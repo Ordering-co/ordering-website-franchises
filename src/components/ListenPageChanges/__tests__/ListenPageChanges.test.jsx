@@ -1,6 +1,10 @@
+import React from 'react'
+import settings from '../../../config'
 import { describe, expect, it, vi } from 'vitest'
 import { renderWithProviders } from '../../../test/renderWithProviders'
 import { ListenPageChanges } from '../index'
+
+vi.mock('../../../config', () => ({ default: { localProjectPinned: false } }))
 
 const emit = vi.fn()
 const on = vi.fn()
@@ -33,6 +37,15 @@ vi.mock('~ui', () => ({
 }))
 
 describe('ListenPageChanges', () => {
+  it('maps local catalogue navigation without changing production routes', () => {
+    settings.localProjectPinned = true
+    renderWithProviders(<ListenPageChanges />)
+    const handler = on.mock.calls.filter(([event]) => event === 'go_to_page').at(-1)[1]
+    handler({ page: 'search' })
+    expect(push).toHaveBeenLastCalledWith('/search')
+    settings.localProjectPinned = false
+  })
+
   it('renders children and wires event listeners', () => {
     const { getByText } = renderWithProviders(
       <ListenPageChanges><span>page-child</span></ListenPageChanges>

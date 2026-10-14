@@ -5,6 +5,7 @@ import { useTheme } from 'styled-components'
 
 import { HelmetTags } from '../../components/HelmetTags'
 import settings from '../../config'
+import { selectedBusiness } from '../../utils/localProject'
 
 import { useApi, useEvent, useSite, useSession } from '~components'
 import {
@@ -27,7 +28,7 @@ export const BusinessProductsList = (props) => {
 
   const websiteThemeType = theme?.my_products?.components?.website_theme?.components?.type
   const websiteThemeBusinessSlug = theme?.my_products?.components?.website_theme?.components?.business_slug
-  const updatedBusinessSlug = (websiteThemeType === 'single_store' && websiteThemeBusinessSlug) || settings?.businessSlug
+  const updatedBusinessSlug = selectedBusiness(settings, websiteThemeType === 'single_store' && websiteThemeBusinessSlug)
 
   const [helmetMetaTags, setHelmetMetaTags] = useState({
     title: '',

@@ -11,6 +11,7 @@ import {
 import { useLanguage, useEvent, useConfig, useOrder, useUtils } from '~components'
 import { Cart, Button } from '~ui'
 import settings from '~/config'
+import { selectedFranchise } from '~/utils/localProject'
 import { useFreeDeliveryProgress } from '~components/hooks/useFreeDeliveryProgress'
 
 const CartWithFreeDeliveryProgress = (props) => {
@@ -18,7 +19,7 @@ const CartWithFreeDeliveryProgress = (props) => {
   const isCheckoutRoute = /^\/(?:checkout|multi-checkout)(?:\/|$)/.test(window.location.pathname)
   const theme = useTheme()
   const websiteTheme = theme?.my_products?.components?.website_theme?.components
-  const franchiseId = (websiteTheme?.type === 'franchise' && (websiteTheme?.franchise_slug || websiteTheme?.business_slug)) || settings?.franchiseSlug
+  const franchiseId = selectedFranchise(settings, websiteTheme?.type === 'franchise' && (websiteTheme?.franchise_slug || websiteTheme?.business_slug))
   const freeDeliveryProgress = useFreeDeliveryProgress({
     business: { ...cart?.business, id: cart?.business?.id ?? cart?.business_id },
     cart,

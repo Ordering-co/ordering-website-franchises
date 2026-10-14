@@ -1,0 +1,33 @@
+{
+  "projectPaths": [
+    {
+      "path": [
+        "project"
+      ],
+      "required": true
+    }
+  ],
+  "additionalSelection": {
+    "field": "franchiseSlug",
+    "flag": "franchise-slug",
+    "endpoint": "franchises",
+    "identity": "slug",
+    "required": true,
+    "placeholders": [
+      "",
+      "YOUR_FRANCHISE_SLUG"
+    ],
+    "persist": "id"
+  },
+  "configFile": "src/config.json",
+  "schemaVersion": 1,
+  "product": "ordering-website-franchises",
+  "projectPlaceholders": [
+    "",
+    "YOUR_PROJECT",
+    "YOUR_PROJECT_CODE",
+    "your-project",
+    "your_project",
+    "your-project-slug"
+  ]
+}

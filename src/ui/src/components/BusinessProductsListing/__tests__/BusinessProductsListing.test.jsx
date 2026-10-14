@@ -4,6 +4,8 @@ import { renderWithProviders } from '../../../../../test/renderWithProviders'
 import { fireEvent, screen } from '@testing-library/react'
 import { BusinessProductsListing } from '../index'
 
+vi.mock('~/config', () => ({ default: { localProjectPinned: true, franchiseSlug: 23 } }))
+
 const mockState = vi.hoisted(() => ({
   progress: vi.fn(() => ({ status: 'hidden' })),
   carts: {},
@@ -98,6 +100,12 @@ describe('BusinessProductsListing', () => {
     }
   })
 
+  it('keeps the numeric local franchise despite a remote theme and supplied franchise', () => {
+    const themeOverrides = { my_products: { components: { website_theme: { components: { type: 'franchise', franchise_slug: 'remote-franchise', business_slug: 'remote-business' } } } } }
+    renderWithProviders(<BusinessProductsListing franchiseId='stale-prop' />, { themeOverrides })
+    expect(mockState.progress).toHaveBeenLastCalledWith(expect.objectContaining({ franchiseId: 23 }))
+  })
+
   it('renders products layout from listing controller', () => {
     const { getByTestId } = renderWithProviders(<BusinessProductsListing />)
     expect(getByTestId('products-layout')).toBeInTheDocument()
@@ -106,7 +114,7 @@ describe('BusinessProductsListing', () => {
   it('scopes one hook to the business and franchise', () => {
     renderWithProviders(<BusinessProductsListing franchiseId='brand' />)
     expect(mockState.progress).toHaveBeenCalledWith({
-      business: mockState.businessState.business, cart: {}, franchiseId: 'brand', enabled: true
+      business: mockState.businessState.business, cart: {}, franchiseId: 23, enabled: true
     })
   })
 
