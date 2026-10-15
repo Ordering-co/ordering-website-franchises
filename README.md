@@ -10,7 +10,7 @@ Copy this single prompt into Codex, Claude Code or another assistant:
 
 1. Confirm the project and choose an enabled franchise explicitly; never automatically select the first franchise or business.
 2. Open the local storefront and check the project/franchise indicator. **Order Now** opens the local read-only catalogue; a real store card must be visible inside the viewport.
-3. Make a small visible edit and check HMR without a reload. Follow [setup.md](setup.md) for manual setup, diagnosis, project switching and reverting a backup.
+3. Make a small visible edit and check that the development server updates the page automatically. Follow [setup.md](setup.md) for manual setup, diagnosis, project switching and reverting a backup.
 
 ```sh
 pnpm setup:detect

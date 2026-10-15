@@ -65,7 +65,7 @@ Check the local indicator for your selected project and franchise. **Order Now**
 
 ## 3. First edit and maintenance
 
-Change `home.title` in `src/helmetdata.json`, restart and check the browser tab title on the home page. The backend theme can provide the site name; preserve its translations. For an immediate HMR check, make a small temporary change to the local indicator text and verify it appears without a reload, then restore it. Use this prompt:
+Change `home.title` in `src/helmetdata.json`, restart and check the browser tab title on the home page. The backend theme can provide the site name; preserve its translations. For an immediate development-update check, make a small temporary change to the local indicator text and verify it appears automatically, then restore it. Depending on the edited module, Vite may use HMR or reload the page automatically; do not claim state preservation without checking it. Use this prompt:
 
 > In this configured franchise checkout, make a small visible change to the name, title or local indicator. Preserve the project, franchise, API, socket, translations and IDs. Show me the diff and verify it in the browser. Do not publish.
 
