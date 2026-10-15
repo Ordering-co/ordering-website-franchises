@@ -1,69 +1,24 @@
 # Ordering Franchise Website
 
-React 18 storefront using Vite, styled-components and the Ordering API. A franchise storefront with business selection, checkout and order tracking.
+Set up your Ordering franchise storefront and make your first visible change with a coding agent.
 
-## Start with your assistant
+Requires Git, Node.js and a modern browser.
 
-Copy this single prompt into Codex, Claude Code or another assistant:
+## 1. Paste this into your coding agent
 
-> Set up my storefront from https://github.com/Ordering-co/ordering-website-franchises.git. Reuse an existing checkout without deleting customizations and follow setup.md. Detect the available Ordering connection; confirm my project and an enabled franchise I explicitly choose. Preserve other settings, validate and save with a backup. Start locally, verify the selection and help me make a first visible edit. Do not publish or deploy.
-
-1. Confirm the project and choose an enabled franchise explicitly; never automatically select the first franchise or business.
-2. Open the local storefront and check the project/franchise indicator. **Order Now** opens the local read-only catalogue; a real store card must be visible inside the viewport.
-3. Make a small visible edit and check that the development server updates the page automatically. Follow [setup.md](setup.md) for manual setup, diagnosis, project switching and reverting a backup.
-
-```sh
-pnpm setup:detect
-pnpm setup:configure --project YOUR_PROJECT --franchise-slug YOUR_FRANCHISE
-pnpm setup:doctor
-pnpm start
+```text
+Set up https://github.com/Ordering-co/ordering-website-franchises.git using setup.md. Reuse my checkout if available. Help me confirm my project and franchise, open the website, and make a first visible edit. Do not publish or deploy.
 ```
 
-`setup:configure` validates your explicit selection and writes `localProjectConfigured: true` to opt in to isolated local preview. Without that source marker, normal development keeps its existing project, Worker and session flow. These helpers do not create projects or franchises. Public validation checks availability, not developer identity or project membership. Keep private API credentials out of browser code.
+## 2. Confirm your project and franchise
 
-## Setup
+Tell your agent which Ordering project to use and choose an enabled franchise. Reuse an existing compatible connection when available; otherwise, provide your project slug. Your agent will guide you through confirmation.
 
-Use Node 24 and pnpm 9.15.0. The shared components are a Git submodule.
+## 3. Open your website
 
-```sh
-git clone --recurse-submodules https://github.com/Ordering-co/ordering-website-franchises.git
-cd ordering-website-franchises
-corepack enable
-corepack prepare pnpm@9.15.0 --activate
-HUSKY=0 pnpm install --frozen-lockfile
-[ -e .env ] || cp .env.example .env
-pnpm setup:configure --project YOUR_PROJECT --franchise-slug YOUR_FRANCHISE
-pnpm setup:doctor
-pnpm start
-```
+Open the URL your agent provides. Check the project and franchise shown, then open the catalogue to see your stores. Ask for a small visible edit and watch the page update automatically.
 
-For an existing checkout, run `git submodule update --init --recursive` before installing. See [setup.md](setup.md) for configuration and validation.
-
-## Commands
-
-```sh
-pnpm build
-pnpm preview
-pnpm lint:check
-pnpm i18n:verify
-pnpm i18n:check-generated
-pnpm test
-pnpm test:coverage
-node scripts/coverage-summary.js --no-run --strict
-pnpm setup:test
-```
-
-Development and preview use port 3000. Build output is `dist/`. Configure your own Ordering project and integrations before using the storefront. Runtime functionality requires the corresponding backend services and project permissions.
-
-## Structure
-
-- `src/pages/`: storefront routes.
-- `src/ui/`: presentation and local components.
-- `src/@/components/`: shared controllers, contexts and SDK submodule.
-- `worker/`: SPA delivery, SEO and runtime configuration.
-- `i18n/`: translation catalog and generators.
-
-Change local presentation in this repository; shared SDK changes belong in its own repository. Keep translation fallbacks and existing locale values when updating copy.
+[Full runbook](setup.md) · [Manual setup](setup.md#1-prepare-the-checkout) · [Troubleshooting](setup.md#troubleshooting) · [First edit](setup.md#3-first-edit-and-maintenance)
 
 ## License
 

@@ -1,5 +1,7 @@
 # Configure and verify the franchise storefront
 
+This React storefront uses functional components and a shared components submodule. Vite 7 and pnpm provide development and builds; Cloudflare Workers deliver static assets from `dist/`. See [wrangler.toml](wrangler.toml) and [worker/](worker/) for edge behavior.
+
 ## 1. Prepare the checkout
 
 For a new checkout:
@@ -94,6 +96,7 @@ pnpm lint:check
 pnpm build
 pnpm i18n:verify
 pnpm i18n:check-generated
+pnpm test
 pnpm test:coverage
 node scripts/coverage-summary.js --no-run --strict
 pnpm setup:test
@@ -101,8 +104,99 @@ pnpm setup:test
 
 Manage translations in `i18n/translations.json`; add literal fallbacks and locale entries, then run `pnpm i18n:generate`. See `i18n/README.md`. Coverage is scoped by the test configuration and does not measure all source files.
 
-### Cloudflare and Docker
+## Repository structure
 
-For Cloudflare, choose your own account and worker names in `wrangler.toml`, set the project and asset URL for each environment and supply account credentials through your local environment or deployment platform. `pnpm cf:dev` starts the worker locally; deployment scripts publish to the configured account and environment. Review configuration before using them. Docker requires the submodule to be initialized before building; use `docker compose up --build` for development.
+- `src/pages/`: storefront routes.
+- `src/ui/`: presentation and local components.
+- `src/@/components/`: shared controllers, contexts and SDK submodule.
+- `worker/`: SPA delivery, SEO and runtime configuration.
+- `i18n/`: translation catalogue and generators.
+
+Change local presentation in this repository; shared SDK changes belong in its own repository. Keep translation fallbacks and existing locale values when updating copy.
+
+A successful bundle or HTTP preview verifies asset delivery, not backend tenant behavior, checkout, payments or notifications. Runtime functionality requires the corresponding backend services and project permissions. Configure your own integrations before using the storefront.
+
+## Build, preview and formatting
+
+Development uses port 3000. `pnpm dev` and `pnpm start` both start Vite. To build and preview the production bundle:
+
+```sh
+pnpm build
+pnpm preview
+```
+
+The bundle is written to `dist/`. To format code, run `pnpm lint`; use `pnpm lint:check` for a check without fixes.
+
+## Cloudflare builds and runtime assets
+
+Choose your own Cloudflare account, worker names, project and asset URLs in `wrangler.toml` for each environment. Supply account credentials through your local environment or deployment platform. `pnpm cf:dev` runs the worker locally. Review configuration before using deployment scripts; they publish to the configured account and require separate authorization.
+
+- **Install:** `corepack enable && corepack prepare pnpm@9.15.0 --activate && pnpm install --frozen-lockfile`
+- **Build:** `pnpm run build`
+- Optional: `NODE_VERSION=24`, `HUSKY=0` on CI
+- The generic `.env.example` template and `wrangler.toml` use `ASSET_BASE_URL=/`; preserve your own local `.env`. If production hashed assets are served from another origin, that Vite prefix is set in **Cloudflare Workers Builds**, not by the tracked file. Recreating the build variable in the Cloudflare dashboard is what production uses.
+- `wrangler.toml` `ASSET_BASE_URL=/` is the Worker runtime value for URLs injected by the Worker (for example favicons). It is independent of the Vite prefix.
+- Fingerprinted files under `/assets/*` get CORS and immutable cache from `public/_headers`. `run_worker_first` excludes `js`, `css`, fonts, maps, and other static extensions so those requests do not invoke the Worker.
+- Process-level `ASSET_BASE_URL` or `VITE_ASSET_BASE_URL` still overrides your local `.env` value during local builds.
+
+## Docker alternative
+
+Install [Docker Engine](https://docs.docker.com/engine/install/) and ensure Docker is running. Clone and initialize the shared submodule as described in the manual setup above. From the project root:
+
+```sh
+docker compose up --build
+```
+
+Open `http://localhost:3000` in your browser. Docker requires the initialized submodule before building.
+
+## Troubleshooting
+
+- If you can't reach `0.0.0.0:3000`, use `localhost:3000` instead.
+- Docker issues: restart Docker Desktop and run `docker compose up` again.
+- **JavaScript heap out of memory:** increase Docker Desktop memory/CPU limits under Settings → Resources.
+
+For project, connection, API, CORS, disabled-franchise or permission issues, use the diagnosis prompt in [First edit and maintenance](#3-first-edit-and-maintenance) together with `pnpm setup:detect` and `pnpm setup:doctor`. Keep private credentials out of logs and browser configuration.
+
+## Google Analytics 4 ecommerce
+
+GA4 is optional and configured per Ordering project. Shared code does not contain a
+default Measurement ID, client brand, or currency.
+
+- When the app runs in single-store / marketplace / kiosk mode
+  (`singleBusinessConfig.isActive`), the Measurement ID comes from
+  `store_google_analytics_id` in `window.__CONFIG__` / `src/config.json`.
+- Otherwise it comes from the project dashboard/API setting
+  `track_id_google_analytics`.
+- Only valid GA4 Measurement IDs (`G-...`) enable tracking. Empty, invalid,
+  `"0"`, or legacy Universal Analytics values keep tracking disabled.
+- Currency comes from the project `stripe_currency` configuration. Monetary
+  values are omitted when no valid ISO 4217 currency is available.
+- Measurement ID changes take effect from configuration on the next page load;
+  they do not require a source-code change or deployment.
+
+The integration sends the GA4 ecommerce journey `view_item_list`,
+`select_item`, `view_item`, `add_to_cart`, `remove_from_cart`, `view_cart`,
+`begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase`.
+`purchase` is emitted only after Ordering confirms the order and is deduplicated
+by Measurement ID plus transaction ID. Login and signup successes send only the
+method; email, phone, name, address, payment details, and Ordering user IDs are
+never included.
+
+### GA4 QA
+
+1. Configure a test project's `track_id_google_analytics` in the dashboard.
+2. Open the site in a private window and verify page and ecommerce events in GA4
+   DebugView or Tag Assistant.
+3. Complete the menu → product → cart → checkout → payment → successful-order
+   journey on desktop and mobile.
+4. Confirm every event has the expected `send_to`, item data, configured
+   currency, store/order/payment metadata, and no PII.
+5. Reload the successful order page and confirm the same `transaction_id` does
+   not create another purchase.
+6. Remove or invalidate the project ID, reload, and confirm no GA script or
+   events are sent.
+7. Configure a second test project with another ID and confirm events never
+   appear in the first project's property.
+8. Exercise payment failure/cancellation and confirm no `purchase` is emitted.
 
 No onboarding step publishes or migrates backend data.
