@@ -3,6 +3,7 @@ import { useTheme } from 'styled-components'
 
 import { HelmetTags } from '../../components/HelmetTags'
 import settings from '../../config'
+import { selectedFranchise } from '../../utils/localProject'
 
 import { useEvent } from '~components'
 import { MessagesListing } from '~ui'
@@ -12,7 +13,7 @@ export const MessagesList = (props) => {
   const theme = useTheme()
   const websiteThemeType = theme?.my_products?.components?.website_theme?.components?.type
   const websiteThemeFranchiseSlug = theme?.my_products?.components?.website_theme?.components?.franchise_slug
-  const updatedFranchiseSlug = (websiteThemeType === 'franchise' && websiteThemeFranchiseSlug) || settings?.franchiseSlug
+  const updatedFranchiseSlug = selectedFranchise(settings, websiteThemeType === 'franchise' && websiteThemeFranchiseSlug)
 
   const messageprops = {
     ...props,

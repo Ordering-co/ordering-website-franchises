@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import { useEvent, useLanguage, useSite } from '~components'
+import settings from '../../config'
 import { useTheme, checkSiteUrl } from '~ui'
 
 export const ListenPageChanges = ({ children }) => {
@@ -19,6 +20,7 @@ export const ListenPageChanges = ({ children }) => {
 
   const routes = {
     home: '/',
+    ...(settings.localProjectPinned ? { search: '/search' } : {}),
     account: '/account',
     profile: '/profile',
     messages: '/messages',

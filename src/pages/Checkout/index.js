@@ -4,6 +4,7 @@ import { loadStripe } from '@stripe/stripe-js/pure'
 import { useParams, useLocation } from 'react-router-dom'
 
 import settings from '../../config'
+import { selectedBusiness } from '../../utils/localProject'
 import { HelmetTags } from '../../components/HelmetTags'
 
 import { useEvent, useOrder, useLanguage, useSite, useBusiness } from '~components'
@@ -25,7 +26,7 @@ export const CheckoutPage = (props) => {
   const [, { setBusiness }] = useBusiness()
   const websiteThemeType = theme?.my_products?.components?.website_theme?.components?.type
   const websiteThemeBusinessSlug = theme?.my_products?.components?.website_theme?.components?.business_slug
-  const updatedBusinessSlug = (websiteThemeType === 'single_store' && websiteThemeBusinessSlug) || settings?.businessSlug
+  const updatedBusinessSlug = selectedBusiness(settings, websiteThemeType === 'single_store' && websiteThemeBusinessSlug)
 
   const stripePayments = ['stripe', 'stripe_connect', 'stripe_direct', 'google_pay', 'apple_pay']
   const businessUrlTemplate = checkSiteUrl(site?.business_url_template, '/store/:business_slug')

@@ -107,6 +107,7 @@ import alarmClock from './assets/images/alarm-clock.svg'
 import deliveryIcon from './assets/images/delivery-icon.svg'
 import pickupIcon from './assets/images/pickup-icon.svg'
 import orderDetailsBanner from './assets/images/order_details_banner.png'
+import { LocalProjectIndicator } from './components/LocalProjectIndicator'
 import { SubdomainComponent } from './components/SubdomainComponent'
 
 const logos = {
@@ -217,7 +218,7 @@ theme.images = {
   }
 }
 
-const initialFirstLoad = (typeof window !== 'undefined' && window.__FIRST_LOAD__) || null
+const initialFirstLoad = (!settings.localProjectPinned && (typeof window !== 'undefined' && window.__FIRST_LOAD__)) || null
 if (initialFirstLoad) delete window.__FIRST_LOAD__
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
@@ -227,6 +228,7 @@ root.render(
       <SubdomainComponent>
         <OrderingProvider Alert={Alert} initialOptimizationLoad={initialFirstLoad}>
           <BusinessSelectedProvider>
+            <LocalProjectIndicator />
             <Router />
             <Toast />
           </BusinessSelectedProvider>

@@ -13,6 +13,8 @@ import { useTheme } from 'styled-components'
 // import PWAPrompt from 'react-ios-pwa-prompt'
 import loadable from '@loadable/component'
 import settings from './config'
+import { webPushAllowed, getProductionOneSignal } from './utils/previewPush'
+import { selectedBusiness } from './utils/localProject'
 import { firebasePushSetup, getFirebaseWebConfig, isFirebasePushEnabled, getOpenedPushOrderUuid } from './utils/firebaseWebPush'
 import { getSiteFaviconUrl, getSiteLogoUrl } from './utils/siteBranding'
 import { shouldShowPoweredByForClient } from './utils/poweredByVisibility'
@@ -62,6 +64,7 @@ const AddressList = loadable(() => lazyRetry(() => import('./pages/AddressList')
 const BusinessProductsList = loadable(() => lazyRetry(() => import('./pages/BusinessProductsList')))
 const CheckoutPage = loadable(() => lazyRetry(() => import('./pages/Checkout')))
 const Cms = loadable(() => lazyRetry(() => import('./pages/Cms')))
+const BusinessesList = loadable(() => lazyRetry(() => import('./pages/BusinessesList')))
 const HomePage = loadable(() => lazyRetry(() => import('./pages/Home')))
 const MyOrders = loadable(() => lazyRetry(() => import('./pages/MyOrders')))
 const OrderDetailsPage = loadable(() => lazyRetry(() => import('./pages/OrderDetails')))
@@ -216,7 +219,7 @@ export const App = () => {
 
   const websiteThemeType = themeUpdated?.my_products?.components?.website_theme?.components?.type
   const websiteThemeBusinessSlug = themeUpdated?.my_products?.components?.website_theme?.components?.business_slug
-  const updatedBusinessSlug = (websiteThemeType === 'single_store' && websiteThemeBusinessSlug) || settings?.businessSlug
+  const updatedBusinessSlug = selectedBusiness(settings, websiteThemeType === 'single_store' && websiteThemeBusinessSlug)
   const businessesSlug = {
     marketplace: 'marketplace',
     kiosk: updatedBusinessSlug,
@@ -511,7 +514,8 @@ export const App = () => {
   }, [languageState])
 
   const oneSignalSetup = () => {
-    const OneSignal = window.OneSignal || []
+    if (!webPushAllowed(settings)) return
+    const OneSignal = getProductionOneSignal(settings, window, document)
     const hostname = window.location.hostname
     const initConfig = {
       appId: configs?.onesignal_orderingweb_id?.value,
@@ -561,7 +565,7 @@ export const App = () => {
   }
 
   const firebaseWebPushSetup = () => {
-    if (firebasePushSetupRef.current) return
+    if (!webPushAllowed(settings) || firebasePushSetupRef.current) return
     firebasePushSetupRef.current = true
     firebasePushSetup({
       config: getFirebaseWebConfig(configs),
@@ -585,6 +589,7 @@ export const App = () => {
   }
 
   const subscribePushNotifications = async () => {
+    if (!webPushAllowed(settings)) return
     try {
       await fetch(`${ordering.root}/users/${user?.id}/notification_tokens`, {
         method: 'POST',
@@ -605,12 +610,12 @@ export const App = () => {
   }
 
   useEffect(() => {
-    if (!auth || !oneSignalState?.notification_token || !oneSignalState?.notification_provider) return
+    if (!webPushAllowed(settings) || !auth || !oneSignalState?.notification_token || !oneSignalState?.notification_provider) return
     subscribePushNotifications()
   }, [auth, oneSignalState?.notification_token])
 
   useEffect(() => {
-    if (configLoading) return
+    if (!webPushAllowed(settings) || configLoading) return
     if (isFirebasePushEnabled(configs)) {
       firebaseWebPushSetup()
       return
@@ -724,6 +729,9 @@ export const App = () => {
                             )
                         }
                       </Route>
+                      {settings.localProjectPinned && (
+                        <Route exact path='/search'><BusinessesList /></Route>
+                      )}
                       <Route exact path='/order_types'>
                         {auth
                           ? <OrderTypes />

@@ -6,8 +6,8 @@
   "private": true,
   "packageManager": "pnpm@9.15.0",
   "engines": {
-    "node": ">=22.0.0",
-    "pnpm": ">=9.0.0"
+    "node": "24.x",
+    "pnpm": "9.15.0"
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -32,7 +32,15 @@
     "i18n:sync:live": "node i18n/sync.cjs --live",
     "deploy": "wrangler deploy",
     "deploy:staging": "wrangler deploy --env staging",
-    "cf:dev": "wrangler dev"
+    "cf:dev": "wrangler dev",
+    "setup:detect": "node scripts/onboarding/cli.mjs detect",
+    "setup:configure": "node scripts/onboarding/cli.mjs configure",
+    "setup:doctor": "node scripts/onboarding/cli.mjs doctor",
+    "setup:restore": "node scripts/onboarding/cli.mjs restore",
+    "setup:test": "node --test scripts/onboarding/*.test.mjs",
+    "prestart": "node scripts/check-node.cjs",
+    "predev": "node scripts/check-node.cjs",
+    "prebuild": "node scripts/check-node.cjs"
   },
   "repository": {
     "type": "git",

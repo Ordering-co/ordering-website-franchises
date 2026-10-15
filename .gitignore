@@ -38,3 +38,7 @@ i18n/batches/
 
 # i18n live sync secrets (keep .env.example)
 i18n/.env
+
+# Private local onboarding snapshots
+.ordering-setup/
+src/config.json.*.tmp

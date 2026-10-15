@@ -1,4 +1,5 @@
 import baseSettings from './config.json'
+import { isLocalProject, mergeRuntimeSettings, installLocalProjectStorage } from './utils/localProject'
 
 const runtimeOverride =
   typeof window !== 'undefined' &&
@@ -8,18 +9,8 @@ const runtimeOverride =
     ? window.__CONFIG__
     : {}
 
-const settings = {
-  ...baseSettings,
-  ...runtimeOverride,
-  api: {
-    ...(baseSettings.api || {}),
-    ...(runtimeOverride.api || {})
-  },
-  socket: {
-    ...(baseSettings.socket || {}),
-    ...(runtimeOverride.socket || {})
-  }
-}
+const pinned = isLocalProject(import.meta.env.DEV, typeof window !== 'undefined' ? window.location.hostname : '', baseSettings)
+const settings = mergeRuntimeSettings(baseSettings, runtimeOverride, pinned)
 
 const keysToNull = [
   'franchiseSlug',
@@ -38,5 +29,26 @@ keysToNull.forEach((key) => {
     settings[key] = null
   }
 })
+
+// Preserve the configured selector separately from resolved runtime metadata.
+export const selectedProjectSettings = {
+  ...settings,
+  api: { ...settings.api },
+  socket: { ...settings.socket }
+}
+export const setRuntimeFranchise = (selection, catalogueOptions) => {
+  settings.franchiseSlug = selection.id
+  settings.localFranchiseSlug = selection.slug
+  settings.localCatalogueOptions = catalogueOptions
+}
+
+if (pinned && typeof window !== 'undefined') {
+  try {
+    installLocalProjectStorage(selectedProjectSettings, window)
+  } catch (error) {
+    settings.localStorageError = true
+    console.warn('Ordering local storage isolation failed', error.name)
+  }
+}
 
 export default settings

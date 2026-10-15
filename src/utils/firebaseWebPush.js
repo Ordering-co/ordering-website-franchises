@@ -1,6 +1,9 @@
 import { initializeApp, getApps, getApp } from 'firebase/app'
 import { getMessaging, getToken, onMessage } from 'firebase/messaging'
 
+import settings from '../config'
+import { webPushAllowed } from './previewPush'
+
 const FIREBASE_APP_NAME = 'push'
 const SERVICE_WORKER_URL = '/push/firebase/firebase-messaging-sw.js'
 const SERVICE_WORKER_SCOPE = '/push/firebase/'
@@ -31,6 +34,7 @@ export function getOpenedPushOrderUuid (data) {
 }
 
 export async function firebasePushSetup ({ config, onToken, onNotificationClick }) {
+  if (!webPushAllowed(settings)) return null
   if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !('Notification' in window)) {
     return null
   }

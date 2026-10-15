@@ -5,6 +5,7 @@ import { useTheme } from 'styled-components'
 import { useLocation } from 'react-router-dom'
 import { Cart3 } from 'react-bootstrap-icons'
 import settings from '~/config'
+import { selectedFranchise } from '~/utils/localProject'
 import { useFreeDeliveryProgress } from '~components/hooks/useFreeDeliveryProgress'
 import { FreeDeliveryProgress } from '../FreeDeliveryProgress'
 
@@ -128,7 +129,7 @@ const BusinessProductsListingUI = (props) => {
   const isQuickAddProduct = configs?.add_product_with_one_click?.value === '1'
   const currentCart = Object.values(carts).find(cart => cart?.business?.slug === business?.slug) ?? {}
   const websiteTheme = theme?.my_products?.components?.website_theme?.components
-  const effectiveFranchiseId = props.franchiseId || (websiteTheme?.type === 'franchise' && (websiteTheme?.franchise_slug || websiteTheme?.business_slug)) || settings?.franchiseSlug
+  const effectiveFranchiseId = selectedFranchise(settings, props.franchiseId || (websiteTheme?.type === 'franchise' && (websiteTheme?.franchise_slug || websiteTheme?.business_slug)))
   const hasBusinessError = Array.isArray(error) ? error.length > 0 : Boolean(error)
   const freeDeliveryProgress = useFreeDeliveryProgress({
     business,

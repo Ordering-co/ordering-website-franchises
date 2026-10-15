@@ -2,6 +2,7 @@ import React from 'react'
 import { useTheme } from 'styled-components'
 import { HelmetTags } from '../../components/HelmetTags'
 import settings from '../../config'
+import { selectedFranchise, selectedBusiness } from '../../utils/localProject'
 
 import { useSite, useEvent } from '~components'
 import { useWindowSize, checkSiteUrl, MyOrders as MyOrdersController } from '~ui'
@@ -12,9 +13,9 @@ export const MyOrders = (props) => {
   const theme = useTheme()
   const websiteThemeType = theme?.my_products?.components?.website_theme?.components?.type
   const websiteThemeBusinessSlug = theme?.my_products?.components?.website_theme?.components?.business_slug
-  const updatedBusinessSlug = (websiteThemeType === 'single_store' && websiteThemeBusinessSlug) || settings?.businessSlug
+  const updatedBusinessSlug = selectedBusiness(settings, websiteThemeType === 'single_store' && websiteThemeBusinessSlug)
   const websiteThemeFranchiseSlug = theme?.my_products?.components?.website_theme?.components?.franchise_slug
-  const updatedFranchiseSlug = (websiteThemeType === 'franchise' && websiteThemeFranchiseSlug) || settings?.franchiseSlug
+  const updatedFranchiseSlug = selectedFranchise(settings, websiteThemeType === 'franchise' && websiteThemeFranchiseSlug)
 
   const windowSize = useWindowSize()
   const businessUrlTemplate = checkSiteUrl(site?.business_url_template, '/store/:business_slug')

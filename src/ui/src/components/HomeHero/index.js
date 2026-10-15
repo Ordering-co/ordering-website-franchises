@@ -112,6 +112,11 @@ const HomeHeroUI = (props) => {
   }
 
   const handleGoToOrderTypes = async (orderType) => {
+    // A local catalogue preview does not create a guest user in the backend.
+    if (configFile.localProjectPinned) {
+      events.emit('go_to_page', { page: 'search' })
+      return
+    }
     await changeType(options.type ?? orderType)
     if (!auth && !user?.guestId) {
       await handleCreateGuestUser()

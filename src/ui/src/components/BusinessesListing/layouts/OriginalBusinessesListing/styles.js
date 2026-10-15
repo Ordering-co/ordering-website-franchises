@@ -352,6 +352,29 @@ export const BusinessListingContainer = styled.div`
     left: 100%;
     top: 160px;
   }
+
+  ${({ $isLocalCatalogue }) => $isLocalCatalogue && css`
+    /* The production list is offset beside its map; the local catalogue has no map. */
+    position: relative;
+    left: 0;
+    top: 0;
+    transform: none;
+    box-sizing: border-box;
+    width: calc(100% - 32px);
+    max-width: 1120px;
+    min-width: 0;
+    margin: 24px auto;
+
+    /* Stylis emits base declarations before media rules, irrespective of source
+       order. Override the desktop offset within its media query as well. */
+    @media (min-width: 1200px) {
+      position: relative;
+      left: 0;
+      top: 0;
+      transform: none;
+      margin: 24px auto;
+    }
+  `}
 `
 
 export const BusinessesWrapper = styled.div`
