@@ -28,5 +28,6 @@
   "businessSlug": "",
   "franchiseSlug": null,
   "isCancellation": false,
-  "useOptimizeLoad": true
+  "useOptimizeLoad": true,
+  "sentry_key": ""
 }

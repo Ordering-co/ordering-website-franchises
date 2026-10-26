@@ -7,6 +7,7 @@ import reportWebVitals from './reportWebVitals'
 import { Router } from './router'
 import theme from './theme.json'
 import settings from './config'
+import { initSentry } from './utils/sentry'
 
 import { OrderingProvider } from '~components'
 import { Alert, BusinessSelectedProvider, ThemeProvider, Toast, ConfigFileProvider } from '~ui'
@@ -109,6 +110,8 @@ import pickupIcon from './assets/images/pickup-icon.svg'
 import orderDetailsBanner from './assets/images/order_details_banner.png'
 import { LocalProjectIndicator } from './components/LocalProjectIndicator'
 import { SubdomainComponent } from './components/SubdomainComponent'
+
+initSentry()
 
 const logos = {
   logotype,

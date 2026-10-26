@@ -42,6 +42,11 @@ const createConfig = base => ({
     }
   },
   publicDir: 'public',
+  define: {
+    'import.meta.env.VITE_SENTRY_RELEASE': JSON.stringify(
+      process.env.WORKERS_CI_BRANCH === 'production' ? process.env.WORKERS_CI_COMMIT_SHA || '' : ''
+    )
+  },
   optimizeDeps: {
     esbuildOptions: {
       loader: {
