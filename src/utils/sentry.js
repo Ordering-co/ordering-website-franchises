@@ -17,7 +17,8 @@ export const initSentry = () => {
           environment: 'production',
           release: `website-franchises@${import.meta.env.VITE_SENTRY_RELEASE}`,
           integrations: [Sentry.browserTracingIntegration()],
-          tracesSampleRate: 0.1
+          tracesSampleRate: 0.1,
+          denyUrls: [/^iabjs:\/\/navigation_performance_logger_android$/]
         })
       })
       .catch(() => {})

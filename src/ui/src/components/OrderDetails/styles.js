@@ -731,6 +731,44 @@ export const CommentContainer = styled.div`
     font-weight: 400;
   }
 `
+
+export const DeliveryPinContainer = styled.div`
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0 0;
+  padding: 16px 20px;
+  background-color: ${props => props.theme.colors.backgroundPage};
+  border: 1px solid ${props => props.theme.colors.gray200};
+  border-radius: ${(props) => props.theme?.utils?.radius?.m}px;
+  color: ${props => props.theme.colors.darkTextColor};
+
+  h3 {
+    font-weight: 800;
+    font-size: ${(props) => props.theme?.utils?.tsize?.xs}px;
+    margin: 0 0 10px;
+  }
+
+  .pin {
+    font-size: ${(props) => props.theme?.utils?.tsize?.xl}px;
+    font-weight: 800;
+    letter-spacing: 0.3em;
+    margin-right: -0.3em;
+    line-height: 1;
+    color: ${props => props.theme.colors.primary};
+    font-variant-numeric: tabular-nums;
+  }
+
+  .help {
+    margin-top: 10px;
+    font-size: ${(props) => props.theme?.utils?.tsize?.xs}px;
+    font-weight: 400;
+  }
+`
+
 export const NewOrder = styled.div`
   button {
     width: 160px;

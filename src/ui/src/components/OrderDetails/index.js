@@ -49,6 +49,7 @@ import { OrderBillSection } from './OrderBillSection'
 import { ActionsSection } from './ActionsSection'
 import { OrderPreferencesSection } from './OrderPreferencesSections'
 import { OrderHistory } from './OrderHistory'
+import { DeliveryPin } from './DeliveryPin'
 import { getUtils } from './utils'
 /* import { ReviewOrderSimple as ReviewOrder } from '../ReviewOrderSimple' */
 
@@ -385,6 +386,7 @@ const OrderDetailsUI = (props) => {
                   {t('HELP', 'Help')}
                 </Button>
               </div>
+              <DeliveryPin order={order} />
               {order?.reservation && order?.delivery_type === 9 && (
                 <>
                   <p className='date'>{t('RESERVATION_SCHEDULED_TO', 'Reservation scheduled to')}: {parseDate(order?.reservation?.reserve_date, { utc: false, outputFormat: `YYYY-MM-DD ${configs?.general_hour_format?.value}` })}</p>

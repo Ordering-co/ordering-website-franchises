@@ -31,12 +31,15 @@ vi.mock('../utils', () => ({
   getUtils: () => ({ setLocalMoment: () => {} })
 }))
 
-const buildOrder = (status) => ({
+const buildOrder = (status, overrides = {}) => ({
   ...require('../../../../../test/ordersUiTestUtils').baseOrder,
   status,
   customer: { address: '9 Customer St', location: { lat: 1, lng: 1 } },
-  reporting_data: { at: { 'status:1': '2026-01-01T12:00:00Z' } }
+  reporting_data: { at: { 'status:1': '2026-01-01T12:00:00Z' } },
+  ...overrides
 })
+
+const requestedPin = { delivery_pin: '0427', delivery_pin_status: 'requested' }
 
 vi.mock('~components', () => {
   const { baseOrdersUiHooks, baseOrder } = require('../../../../../test/ordersUiTestUtils')
@@ -104,5 +107,45 @@ describe('OrderDetails', () => {
     expect(getByText('Your order is in progress')).toBeInTheDocument()
     expect(getByText('Help')).toBeInTheDocument()
     fireEvent.click(getByText('Help'))
+  })
+
+  it('shows the delivery PIN while the order is in progress and the PIN is requested', () => {
+    window.scrollTo = () => {}
+    const { getByTestId, getByText } = renderWithProviders(
+      <OrderDetails order={buildOrder(0, requestedPin)} />
+    )
+    const pinBlock = getByTestId('delivery-pin')
+    expect(pinBlock).toHaveTextContent('Delivery PIN')
+    expect(getByText('0427')).toBeInTheDocument()
+    expect(pinBlock).toHaveTextContent('Give this code to the driver when you receive your order')
+  })
+
+  it('hides the delivery PIN once it has been validated', () => {
+    window.scrollTo = () => {}
+    const { getByText, queryByTestId, queryByText } = renderWithProviders(
+      <OrderDetails order={buildOrder(0, { ...requestedPin, delivery_pin_status: 'validated' })} />
+    )
+    expect(getByText('Your order is in progress')).toBeInTheDocument()
+    expect(queryByTestId('delivery-pin')).not.toBeInTheDocument()
+    expect(queryByText('0427')).not.toBeInTheDocument()
+  })
+
+  it('hides the delivery PIN when the order has none', () => {
+    window.scrollTo = () => {}
+    const { getByText, queryByTestId } = renderWithProviders(
+      <OrderDetails order={buildOrder(0, { delivery_pin: null, delivery_pin_status: null })} />
+    )
+    expect(getByText('Your order is in progress')).toBeInTheDocument()
+    expect(queryByTestId('delivery-pin')).not.toBeInTheDocument()
+  })
+
+  it('hides the delivery PIN for a completed order', () => {
+    window.scrollTo = () => {}
+    const { getByText, queryByTestId, queryByText } = renderWithProviders(
+      <OrderDetails order={buildOrder(1, requestedPin)} />
+    )
+    expect(getByText('Your order')).toBeInTheDocument()
+    expect(queryByTestId('delivery-pin')).not.toBeInTheDocument()
+    expect(queryByText('0427')).not.toBeInTheDocument()
   })
 })

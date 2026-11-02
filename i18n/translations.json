@@ -3415,6 +3415,34 @@
     "bg": "Такса за доставка",
     "tr": "Teslimat ücreti"
   },
+  "DELIVERY_PIN": {
+    "en": "Delivery PIN",
+    "es": "PIN de entrega",
+    "fr": "Code PIN de livraison",
+    "it": "PIN di consegna",
+    "de": "Liefer-PIN",
+    "pt": "PIN de entrega",
+    "da": "Leverings-PIN",
+    "nl": "Bezorg-pincode",
+    "ar": "رمز PIN للتوصيل",
+    "el": "PIN παράδοσης",
+    "bg": "ПИН за доставка",
+    "tr": "Teslimat PIN'i"
+  },
+  "DELIVERY_PIN_HELP": {
+    "en": "Give this code to the driver when you receive your order",
+    "es": "Dáselo al repartidor cuando recibas tu pedido",
+    "fr": "Donnez ce code au livreur lorsque vous recevez votre commande",
+    "it": "Comunica questo codice al fattorino quando ricevi il tuo ordine",
+    "de": "Nennen Sie diesen Code dem Fahrer, wenn Sie Ihre Bestellung erhalten",
+    "pt": "Informe este código ao entregador quando receber o seu pedido",
+    "da": "Giv denne kode til chaufføren, når du modtager din ordre",
+    "nl": "Geef deze code aan de bezorger wanneer je je bestelling ontvangt",
+    "ar": "أعطِ هذا الرمز للسائق عند استلام طلبك",
+    "el": "Δώστε αυτόν τον κωδικό στον οδηγό όταν παραλάβετε την παραγγελία σας",
+    "bg": "Дайте този код на шофьора, когато получите поръчката си",
+    "tr": "Siparişinizi teslim alırken bu kodu sürücüye verin"
+  },
   "DELIVERY_PREFERENCE": {
     "en": "Delivery preference",
     "es": "Preferencia de entrega",

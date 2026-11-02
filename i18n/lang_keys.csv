@@ -243,6 +243,8 @@ key,value,source,note
 "DELIVERY_COMPLETED_BY_DRIVER","Delivery completed by driver","both",""
 "DELIVERY_FAILED_BY_DRIVER","Delivery Failed by driver","both",""
 "DELIVERY_FEE","Delivery Fee","app",""
+"DELIVERY_PIN","Delivery PIN","app",""
+"DELIVERY_PIN_HELP","Give this code to the driver when you receive your order","app",""
 "DELIVERY_PREFERENCE","Delivery preference","app",""
 "DELIVERY_TIME","Delivery Time","app",""
 "DELIVERYA_V21","Delivery address","app",""

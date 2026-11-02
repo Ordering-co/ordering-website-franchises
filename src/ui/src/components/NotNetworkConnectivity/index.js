@@ -20,6 +20,7 @@ export const NotNetworkConnectivity = (props) => {
 
   const getBase64ImageFromUrl = async (imageUrl) => {
     const response = await fetch(imageUrl)
+    if (!response.ok) return null
     const blob = await response.blob()
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
@@ -34,10 +35,19 @@ export const NotNetworkConnectivity = (props) => {
   }
 
   useEffect(() => {
+    let active = true
+    setBase64ImageString(null)
+    if (!errorImage) return
+
     getBase64ImageFromUrl(errorImage).then(base64 => {
-      setBase64ImageString(base64)
+      if (active) setBase64ImageString(base64)
+    }).catch(() => {
+      // The offline message must work even when its optional image cannot load.
+      if (active) setBase64ImageString(null)
     })
-  }, [])
+
+    return () => { active = false }
+  }, [errorImage])
 
   return (
     <>

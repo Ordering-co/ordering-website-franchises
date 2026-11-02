@@ -1,2 +1,52 @@
+# Sidebar Git does not use the terminal's Node. A stale PATH (for example
+# Node 20) makes pnpm fail engines.node >=22 before lint runs.
+ensure_node() {
+  if node -e 'process.exit(Number(process.versions.node.split(".")[0]) >= 22 ? 0 : 1)' 2>/dev/null; then
+    return 0
+  fi
+
+  pick=""
+  if [ -d "$HOME/.nvm/versions/node" ]; then
+    dirs=$(ls -d "$HOME"/.nvm/versions/node/v* 2>/dev/null | sort -V || true)
+    for dir in $dirs; do
+      bin="$dir/bin/node"
+      [ -x "$bin" ] || continue
+      ver=$("$bin" -p "process.versions.node" 2>/dev/null) || continue
+      case "$ver" in
+        *-*) continue ;;
+      esac
+      major=${ver%%.*}
+      if [ "$major" -ge 22 ]; then
+        pick="$dir/bin"
+      fi
+    done
+  fi
+
+  if [ -z "$pick" ]; then
+    for bin in /opt/homebrew/bin/node /usr/local/bin/node; do
+      [ -x "$bin" ] || continue
+      ver=$("$bin" -p "process.versions.node" 2>/dev/null) || continue
+      case "$ver" in
+        *-*) continue ;;
+      esac
+      major=${ver%%.*}
+      if [ "$major" -ge 22 ]; then
+        pick=$(dirname "$bin")
+        break
+      fi
+    done
+  fi
+
+  if [ -z "$pick" ]; then
+    echo "pre-commit: Node $(node -v 2>/dev/null || echo missing) does not satisfy engines.node >=22." >&2
+    exit 1
+  fi
+
+  PATH="$pick:$PATH"
+  export PATH
+}
+
+ensure_node
+
 pnpm lint
 node i18n/precommit-generate.cjs

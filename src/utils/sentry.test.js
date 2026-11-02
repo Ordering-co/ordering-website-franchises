@@ -126,8 +126,55 @@ describe('initSentry', () => {
       environment: 'production',
       release: 'website-franchises@abc123',
       integrations: [{ name: 'BrowserTracing' }],
-      tracesSampleRate: 0.1
+      tracesSampleRate: 0.1,
+      denyUrls: [/^iabjs:\/\/navigation_performance_logger_android$/]
     })
+  })
+
+  it.each([
+    ['observed Facebook stack', 'Error invoking postMessage: Java object is gone', '    at sendDataToNative (iabjs://navigation_performance_logger_android:1:11853)\n    at sendJsBlockingTimeMessage (iabjs://navigation_performance_logger_android:1:16434)\n    at iabjs://navigation_performance_logger_android:1:20871\n    at sentryWrapped (https://example.invalid/sentry.js:97:17)', false],
+    ['object method', 'Error invoking postMessage: Java object is gone', '    at Object.sendDataToNative (iabjs://navigation_performance_logger_android:1:11853)', false],
+    ['minified method', 'Error invoking postMessage: Java object is gone', '    at e.sendDataToNative (iabjs://navigation_performance_logger_android:1:11853)', false],
+    ['message punctuation variant', 'Error invoking postMessage: Java object is gone.', '    at sendDataToNative (iabjs://navigation_performance_logger_android:1:11853)', false],
+    ['other error in this logger', 'Logger failed to collect timing', '    at collectTiming (iabjs://navigation_performance_logger_android:1:100)', false],
+    ['application error with identical message', 'Error invoking postMessage: Java object is gone', '    at onClick (https://example.invalid/assets/app.js:1:100)', true],
+    ['logger only in caller frame', 'Error invoking postMessage: Java object is gone', '    at onClick (https://example.invalid/assets/app.js:1:100)\n    at sendDataToNative (iabjs://navigation_performance_logger_android:1:11853)', true],
+    ['other injected script', 'Error invoking postMessage: Java object is gone', '    at sendDataToNative (iabjs://other_logger:1:100)', true],
+    ['similarly named script', 'Error invoking postMessage: Java object is gone', '    at sendDataToNative (iabjs://navigation_performance_logger_android_other:1:100)', true],
+    ['missing stack frames', 'Error invoking postMessage: Java object is gone', '', true]
+  ])('filters %s through the real SDK before transport', async (_name, message, stack, shouldSend) => {
+    enableAllGates()
+    await initSentry()
+    const options = Sentry.init.mock.calls[0][0]
+    const sdk = await vi.importActual('@sentry/react')
+    const envelopes = []
+    const client = new sdk.BrowserClient({
+      ...options,
+      stackParser: sdk.defaultStackParser,
+      integrations: [sdk.inboundFiltersIntegration()],
+      sendClientReports: false,
+      transport: () => ({
+        send: (envelope) => {
+          envelopes.push(envelope)
+          return Promise.resolve({ statusCode: 200 })
+        },
+        flush: () => Promise.resolve(true)
+      })
+    })
+    client.init()
+    try {
+      const error = new Error(message)
+      error.stack = `Error: ${message}\n${stack}`
+      client.captureException(error)
+      expect(await client.flush(2000)).toBe(true)
+      const events = envelopes.flatMap(envelope => envelope[1])
+        .filter(item => item[0].type === 'event')
+        .map(item => item[1])
+      expect(events).toHaveLength(shouldSend ? 1 : 0)
+      if (shouldSend) expect(events[0].exception.values[0].value).toBe(message)
+    } finally {
+      await client.close(2000)
+    }
   })
 
   it('swallows errors thrown by Sentry.init', async () => {
